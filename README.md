@@ -1,6 +1,6 @@
 # Diary Study QDA
 
-![Tests](https://github.com/laras126/diary-study-qda/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/laras126/diary-study-qda/actions/workflows/test.yml/badge.svg) ![Deploy](https://github.com/laras126/diary-study-qda/actions/workflows/deploy.yml/badge.svg)
 
 A local, browser-based tool for qualitative data analysis of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
 
