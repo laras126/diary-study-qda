@@ -136,6 +136,7 @@ export function CodingView() {
         endOffset: pending.end,
         text: pending.text,
         tagIds: [tagId],
+        note: '',
       });
       dismiss();
     },
