@@ -4,7 +4,7 @@ A local, browser-based tool for qualitative coding of diary study data. Import a
 
 All data is stored in your browser's **IndexedDB** — nothing is sent to a server. If you have existing data from a previous version that used `localStorage`, it is migrated automatically on first load.
 
-> **Note:** The entire codebase was created with [Claude Code](https://claude.ai/claude-code).
+**Note:** This was created entirely with [Claude Code](https://claude.ai/claude-code).
 
 ---
 
