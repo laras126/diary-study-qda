@@ -47,26 +47,75 @@ export function HomeView() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Diary Study Studio</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Diary Study QDA</h1>
         <p className="text-gray-500 mt-1">
-          {hasData ? 'Your project at a glance.' : 'Get started by importing your diary study CSV.'}
+          {hasData ? 'Your project at a glance.' : 'Qualitative data analysis for your LLM diary study.'}
         </p>
       </div>
 
       {!hasData ? (
-        /* ── Empty state ── */
-        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-          <div className="text-5xl mb-4">📂</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">No data loaded yet</h2>
-          <p className="text-gray-500 mb-6 text-sm max-w-sm mx-auto">
-            Import your diary study CSV to start coding entries and building your analysis.
-          </p>
-          <button
-            onClick={() => setCurrentView('import')}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            Import data →
-          </button>
+        /* ── Empty state / landing ── */
+        <div className="space-y-5 max-w-2xl">
+
+          {/* What it is */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-7">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">What is this?</h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              This is a qualitative data analysis tool for the{' '}
+              <a href="https://laras126.github.io/cog-sci-and-llms/assignments/diary-study/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                Diary Study
+              </a>{' '}
+              assignment in{' '}
+              <a href="https://laras126.github.io/cog-sci-and-llms/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                Cognitive Science &amp; LLMs
+              </a>.
+              It is built and maintained by{' '}
+              <a href="https://larakarki.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                Lara Karki
+              </a>.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              The goal of the diary study is to collect qualitative data to better understand your own LLM use — finding themes around what use cases are successful or frustrating, and building a habit of reflection. Over weeks 1–5 you record a short entry at the <strong>start</strong> and <strong>end</strong> of each workday:
+            </p>
+            <div className="space-y-2 mb-3">
+              <div className="flex gap-3 text-sm">
+                <span className="shrink-0 font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs mt-0.5">AM</span>
+                <p className="text-gray-600 italic">"Think about your tasks coming up today. How do you think you will use LLMs?"</p>
+              </div>
+              <div className="flex gap-3 text-sm">
+                <span className="shrink-0 font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded text-xs mt-0.5">PM</span>
+                <p className="text-gray-600 italic">"How did you use LLMs today? Were there any moments that stood out — successful usage, or frustrating usage?"</p>
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs">
+              Entries range from a sentence to ~150 words. Missing a day is fine — you can mark a PM entry as belonging to the previous day during data cleaning.
+            </p>
+          </div>
+
+          {/* How to get started */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-7">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Getting started</h2>
+            <ol className="space-y-3">
+              {[
+                { n: '1', text: 'Export your MS Forms (or Google Forms) responses as a CSV.' },
+                { n: '2', text: 'Click Import below and upload the CSV. The tool will detect the AM and PM columns automatically.' },
+                { n: '3', text: 'Use the Clean view to fix any entries that were submitted on the wrong day.' },
+                { n: '4', text: 'Open the Coding view, select an entry, highlight a phrase, and assign it a tag to start building your codebook.' },
+                { n: '5', text: 'Use the Analysis view to browse all snippets by tag and look for patterns across entries.' },
+              ].map(({ n, text }) => (
+                <li key={n} className="flex gap-3 text-sm text-gray-600">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-gray-100 text-gray-500 font-semibold flex items-center justify-center text-xs">{n}</span>
+                  <span className="leading-relaxed">{text}</span>
+                </li>
+              ))}
+            </ol>
+            <button
+              onClick={() => setCurrentView('import')}
+              className="mt-6 bg-gray-900 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-700 transition-colors"
+            >
+              Import your CSV →
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">

@@ -28,4 +28,4 @@ export interface Snippet {
   createdAt: string;
 }
 
-export type ViewType = 'home' | 'import' | 'clean' | 'code' | 'tags' | 'analysis';
+export type ViewType = 'home' | 'import' | 'clean' | 'code' | 'tags' | 'analysis' | 'about';
