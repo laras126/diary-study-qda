@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Prevent highlight color bleeding into selection UI */
+mark {
+  background: none;
+}
+
+/* Smooth highlight transitions */
+.highlight-mark {
+  transition: box-shadow 0.1s ease;
+}

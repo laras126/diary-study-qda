@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "qual-studio",
+      "runtimeExecutable": "/Users/lschenck3/.nvm/versions/node/v22.22.1/bin/node",
+      "runtimeArgs": ["/Users/lschenck3/.nvm/versions/node/v22.22.1/bin/vite", "--port", "5173"],
+      "port": 5173
+    }
+  ]
+}
