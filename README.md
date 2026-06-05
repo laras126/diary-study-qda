@@ -1,6 +1,6 @@
 # Diary Study Studio
 
-![Tests](https://github.com/<your-username>/<your-repo>/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/laras126/diary-study-qda/actions/workflows/test.yml/badge.svg)
 
 A local, browser-based tool for qualitative coding of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
 
