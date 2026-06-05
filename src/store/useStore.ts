@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { Entry, Tag, Snippet, ViewType } from '../types';
+import { idbStorage } from './idbStorage';
 
 const TAG_COLORS = [
   '#e05252', '#e08a52', '#c9b835', '#52a852', '#52a8a8',
@@ -118,6 +119,9 @@ export const useStore = create<Store>()(
       clearAll: () =>
         set({ entries: [], tags: [], snippets: [], currentView: 'home', selectedEntryId: null }),
     }),
-    { name: 'diary-qual-storage' }
+    {
+      name: 'diary-qual-storage',
+      storage: createJSONStorage(() => idbStorage),
+    }
   )
 );

@@ -1,8 +1,8 @@
 # Diary Study Studio
 
-A local, browser-based tool for qualitative coding of diary study data. Import a CSV from Microsoft Forms, clean dates, highlight and tag text snippets, and export your coded data.
+A local, browser-based tool for qualitative coding of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
 
-All data is stored in your browser's `localStorage` — nothing is sent to a server.
+All data is stored in your browser's **IndexedDB** — nothing is sent to a server. If you have existing data from a previous version that used `localStorage`, it is migrated automatically on first load.
 
 > **Note:** The entire codebase was created with [Claude Code](https://claude.ai/claude-code).
 
