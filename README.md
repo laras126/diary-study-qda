@@ -1,12 +1,14 @@
-# Diary Study Studio
+# Diary Study QDA
 
 ![Tests](https://github.com/laras126/diary-study-qda/actions/workflows/test.yml/badge.svg)
 
-A local, browser-based tool for qualitative coding of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
+A local, browser-based tool for qualitative data analysis of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
 
 All data is stored in your browser's **IndexedDB** — nothing is sent to a server. If you have existing data from a previous version that used `localStorage`, it is migrated automatically on first load.
 
-**Note:** This was created entirely with [Claude Code](https://claude.ai/claude-code).
+This app is designed to support [the Diary Study in the Cognitive Science & LLMs class](https://laras126.github.io/cog-sci-and-llms/assignments/diary-study/).
+
+**Note:** The app was created entirely with [Claude Code](https://claude.ai/claude-code), as directed by [Lara Karki](https://larakarki.com).
 
 ---
 
