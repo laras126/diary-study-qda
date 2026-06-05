@@ -2,104 +2,101 @@
 
 ![Tests](https://github.com/laras126/diary-study-qda/actions/workflows/test.yml/badge.svg) ![Deploy](https://github.com/laras126/diary-study-qda/actions/workflows/deploy.yml/badge.svg)
 
-A local, browser-based tool for qualitative data analysis of diary study data. Import a CSV, clean dates, tag and annotate text snippets, and export your coded data.
+A browser-based qualitative data analysis tool for the [Diary Study](https://laras126.github.io/cog-sci-and-llms/assignments/diary-study/) assignment in [Cognitive Science & LLMs](https://laras126.github.io/cog-sci-and-llms/). Built and maintained by [Lara Karki](https://larakarki.com).
 
-All data is stored in your browser's **IndexedDB** — nothing is sent to a server. If you have existing data from a previous version that used `localStorage`, it is migrated automatically on first load.
+All data is stored in your browser's **IndexedDB** — nothing is sent to a server.
 
-This app is designed to support [the Diary Study in the Cognitive Science & LLMs class](https://laras126.github.io/cog-sci-and-llms/assignments/diary-study/).
-
-**Note:** The app was created entirely with [Claude Code](https://claude.ai/claude-code), as directed by [Lara Karki](https://larakarki.com).
+> This app was created entirely with [Claude Code](https://claude.ai/claude-code), as directed by Lara Karki.
 
 ---
 
-## Requirements
+## Using the app
 
-- **Node.js 18 or later** — check with `node --version`  
-  If you have [nvm](https://github.com/nvm-sh/nvm), run `nvm use 18` (or higher).
+**The app is deployed at:** `https://laras126.github.io/diary-study-qda/`
 
----
+No installation needed. Open the link in your browser and follow the on-screen instructions to get started.
 
-## Setup
+### Getting started
 
-```bash
-# 1. Clone the repo
-git clone <your-repo-url>
-cd diary-qual-tool
+1. Export your MS Forms (or Google Forms) diary study responses as a CSV
+2. Go to **Import** and upload the file — the tool auto-detects the `AM:` and `PM:` columns
+3. Use **Clean** to fix any entries submitted on the wrong day
+4. Go to **Coding**, select an entry, highlight a phrase, and assign a tag to start building your codebook
+5. Use **Analysis** to browse snippets by tag and find patterns across entries
 
-# 2. Install dependencies
-npm install
+### CSV format
 
-# 3. Start the dev server
-npm run dev
-```
+The app expects a CSV with these column headers (standard MS Forms export):
 
-Then open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
-
-## CSV format
-
-The app expects a CSV exported from Microsoft Forms (or a compatible tool) with these column headers:
-
-| Column | Description |
-|--------|-------------|
+| Column | Notes |
+|--------|-------|
 | `Id` | Row identifier |
 | `Start time` | When the form was opened |
-| `Completion time` | When the form was submitted — used to determine the entry date |
-| `Email` | Ignored on import |
-| `Name` | Ignored on import |
-| `AM: Think about your tasks coming up today…` | Morning reflection (column must start with `AM:`) |
-| `PM: How did you use LLMs today?…` | Evening reflection (column must start with `PM:`) |
+| `Completion time` | Used to determine the entry date |
+| `Email` | Ignored |
+| `Name` | Ignored |
+| `AM: Think about your tasks coming up today…` | Must start with `AM:` |
+| `PM: How did you use LLMs today?…` | Must start with `PM:` |
 
-Each row can contain an AM response, a PM response, or both. Rows with empty AM/PM cells are skipped for that type.
+Each row can have an AM response, a PM response, or both. Empty cells are skipped.
 
----
+### Views
 
-## Views
+| View | What it does |
+|------|-------------|
+| **Home** | Project dashboard — stats, tag breakdown, resume card, uncoded entries list |
+| **Import** | Upload a CSV; preview before committing; append or replace existing data |
+| **Clean** | Fix entry dates — days with a missing AM or PM are flagged; drag entries to the correct day |
+| **Coding** | Highlight text and assign tags to create snippets. Supports overlapping highlights, inline annotations, Backspace to delete, ‹ › to navigate, and a search bar |
+| **Tags** | Create, rename (propagates to all snippets), and delete qualitative codes |
+| **Analysis** | Filter snippets by one or more tags (Any / All); click "View in context →" to jump to the source entry |
 
-### Home
-Project dashboard — stats at a glance, tag breakdown with frequency bars, "resume where you left off" card, and a list of uncoded entries.
+### Exporting your data
 
-### Import
-Drag-and-drop or browse for a CSV file. Preview parsed entries before committing. You can append to existing data or replace it.
-
-### Clean
-Entries are grouped by date in AM/PM columns. Days with a missing AM or PM are flagged in orange. Use the date controls to reassign entries that were submitted on the wrong day (e.g. a PM entry submitted the morning of the next day).
-
-### Coding
-Select text within any entry and assign a tag to create a **snippet**. Supports overlapping highlights — each overlap zone shows a striped multi-colour underline. Click an overlap to see a picker listing all snippets at that position.
-
-- **Backspace / Delete** removes the focused snippet
-- **‹ ›** arrows navigate between entries in order
-- The **search bar** in the sidebar filters entries and highlights matches in the text
-
-Each snippet can have a free-text annotation added below it.
-
-### Tags
-Create and rename qualitative codes. Renaming a tag updates every snippet automatically. Click a tag name to jump to all its snippets in Analysis.
-
-### Analysis
-Browse all snippets filtered by one or more tags (Any / All match modes). Click "View in context →" to jump to the source entry in Coding.
-
----
-
-## Export
-
-The **Export** button (top right, always visible) lets you download:
+The **Export** button (top right) is always available:
 
 | File | Contents |
 |------|----------|
-| `entries_DATE.csv` | All entries with assigned dates and metadata |
-| `snippets_DATE.csv` | All snippets with tag names, text, offsets, and annotations |
+| `entries_DATE.csv` | All entries with dates and metadata |
+| `snippets_DATE.csv` | All snippets with tag names, text, and annotations |
 | `tags_DATE.csv` | Tag definitions with snippet counts |
-| `full_export_DATE.json` | Everything in a single JSON file |
+| `full_export_DATE.json` | Everything in one JSON file |
+
+Export regularly — clearing your browser data will erase everything.
 
 ---
 
-## Build for production
+## Contributing
+
+### Requirements
+
+**Node.js 18 or later** — check with `node --version`.  
+If you use [nvm](https://github.com/nvm-sh/nvm): `nvm use 22`
+
+### Local development
 
 ```bash
-npm run build
+git clone https://github.com/laras126/diary-study-qda.git
+cd diary-study-qda
+npm install
+npm run dev
 ```
 
-Output goes to `dist/`. Serve it with any static file host — the app has no backend.
+Open [http://localhost:5173](http://localhost:5173).
+
+### Running tests
+
+```bash
+npm run test:run   # single pass
+npm test           # watch mode
+```
+
+### Deploying
+
+Pushes to `main` automatically build and deploy to GitHub Pages via the workflow in `.github/workflows/deploy.yml`. Tests must pass before the deploy runs.
+
+To deploy to a different Pages URL, update `GITHUB_PAGES_BASE` in the workflow file to match your repo name.
+
+```bash
+npm run build      # output goes to dist/
+```

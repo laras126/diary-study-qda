@@ -22,17 +22,18 @@ function makeEntry(overrides: Partial<Entry> = {}): Entry {
 }
 
 describe('HomeView', () => {
-  it('shows an empty state with an import CTA when there is no data', () => {
+  it('shows an informational landing page with an import CTA when there is no data', () => {
     render(<HomeView />);
-    expect(screen.getByText(/no data loaded yet/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /import data/i })).toBeInTheDocument();
+    expect(screen.getByText(/what is this\?/i)).toBeInTheDocument();
+    expect(screen.getByText(/getting started/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /import your csv/i })).toBeInTheDocument();
   });
 
-  it('navigates to Import when the Import CTA is clicked', async () => {
+  it('navigates to Import when the import CTA is clicked', async () => {
     const user = userEvent.setup();
     render(<HomeView />);
 
-    await user.click(screen.getByRole('button', { name: /import data/i }));
+    await user.click(screen.getByRole('button', { name: /import your csv/i }));
 
     expect(useStore.getState().currentView).toBe('import');
   });
