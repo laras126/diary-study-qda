@@ -32,6 +32,7 @@ interface Store {
   setSelectedEntry: (entryId: string | null) => void;
   analysisPresetTagIds: string[];
   setAnalysisPreset: (tagIds: string[]) => void;
+  restoreFromBackup: (data: { entries: Entry[]; tags: Tag[]; snippets: Snippet[] }) => void;
   clearAll: () => void;
 }
 
@@ -116,6 +117,8 @@ export const useStore = create<Store>()(
       },
       setSelectedEntry: (entryId) => set({ selectedEntryId: entryId }),
       setAnalysisPreset: (tagIds) => set({ analysisPresetTagIds: tagIds }),
+      restoreFromBackup: ({ entries, tags, snippets }) =>
+        set({ entries, tags, snippets, currentView: 'home', selectedEntryId: null }),
       clearAll: () =>
         set({ entries: [], tags: [], snippets: [], currentView: 'home', selectedEntryId: null }),
     }),

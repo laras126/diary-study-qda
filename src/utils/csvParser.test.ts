@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCSV } from './csvParser';
+import { parseCSV, ColumnMap } from './csvParser';
 
 function makeFile(content: string) {
   return new File([content], 'test.csv', { type: 'text/csv' });
@@ -8,8 +8,16 @@ function makeFile(content: string) {
 const AM_COL = 'AM: Think about your tasks coming up today. How do you think you will use LLMs?';
 const PM_COL = 'PM: How did you use LLMs today? Were there any moments that stood out to you, e.g., successful usage, or frustrating usage?';
 
+const TEST_MAPPING: ColumnMap = {
+  am: AM_COL,
+  pm: PM_COL,
+  completionTime: 'Completion time',
+  startTime: 'Start time',
+  id: 'Id',
+};
+
 function makeCSV(rows: { am?: string; pm?: string; date?: string; id?: string }[]) {
-  const header = `Id,Start time,Completion time,Email,Name,${AM_COL},${PM_COL}`;
+  const header = `Id,Start time,Completion time,Email,Name,"${AM_COL}","${PM_COL}"`;
   const body = rows.map(({ am = '', pm = '', date = '6/2/2026', id = '1' }) =>
     `${id},${date} 8:00:00 AM,${date} 8:05:00 AM,user@example.com,Test,"${am}","${pm}"`
   );
@@ -19,7 +27,7 @@ function makeCSV(rows: { am?: string; pm?: string; date?: string; id?: string }[
 describe('parseCSV', () => {
   it('creates separate AM and PM entries from a single row', async () => {
     const file = makeFile(makeCSV([{ am: 'Morning plan', pm: 'Evening review' }]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries).toHaveLength(2);
     expect(entries.find((e) => e.type === 'AM')!.text).toBe('Morning plan');
@@ -28,7 +36,7 @@ describe('parseCSV', () => {
 
   it('skips empty AM cells', async () => {
     const file = makeFile(makeCSV([{ am: '', pm: 'PM only' }]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries).toHaveLength(1);
     expect(entries[0].type).toBe('PM');
@@ -36,7 +44,7 @@ describe('parseCSV', () => {
 
   it('skips empty PM cells', async () => {
     const file = makeFile(makeCSV([{ am: 'AM only', pm: '' }]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries).toHaveLength(1);
     expect(entries[0].type).toBe('AM');
@@ -44,7 +52,7 @@ describe('parseCSV', () => {
 
   it('parses MM/DD/YYYY dates from the completion time', async () => {
     const file = makeFile(makeCSV([{ am: 'text', date: '6/15/2026' }]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries[0].date).toBe('2026-06-15');
     expect(entries[0].originalDate).toBe('2026-06-15');
@@ -52,7 +60,7 @@ describe('parseCSV', () => {
 
   it('sets dateModified to false on import', async () => {
     const file = makeFile(makeCSV([{ am: 'text' }]));
-    const [entry] = await parseCSV(file);
+    const [entry] = await parseCSV(file, TEST_MAPPING);
 
     expect(entry.dateModified).toBe(false);
   });
@@ -62,7 +70,7 @@ describe('parseCSV', () => {
       { id: '1', am: 'first' },
       { id: '2', am: 'second' },
     ]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries.find((e) => e.text === 'first')!.rowIndex).toBe(0);
     expect(entries.find((e) => e.text === 'second')!.rowIndex).toBe(1);
@@ -70,7 +78,7 @@ describe('parseCSV', () => {
 
   it('returns an empty array for a CSV with no AM or PM content', async () => {
     const file = makeFile(makeCSV([{ am: '', pm: '' }]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries).toHaveLength(0);
   });
@@ -81,7 +89,7 @@ describe('parseCSV', () => {
       { pm: 'Day 2 PM', date: '6/2/2026' },
       { am: 'Day 3 AM', pm: 'Day 3 PM', date: '6/3/2026' },
     ]));
-    const entries = await parseCSV(file);
+    const entries = await parseCSV(file, TEST_MAPPING);
 
     expect(entries).toHaveLength(4);
   });
