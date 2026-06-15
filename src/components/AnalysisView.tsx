@@ -4,13 +4,21 @@ import { useStore } from '../store/useStore';
 import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function AnalysisView() {
-  const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote } = useStore();
+  const { entries, tags, snippets, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote } = useStore();
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [mode, setMode] = useState<'any' | 'all'>('any');
   const [addingChildFor, setAddingChildFor] = useState<string | null>(null);
   const [childInput, setChildInput] = useState('');
   const childInputRef = useRef<HTMLInputElement>(null);
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (snippetId: string) =>
+    setExpandedEntries((prev) => {
+      const next = new Set(prev);
+      next.has(snippetId) ? next.delete(snippetId) : next.add(snippetId);
+      return next;
+    });
 
   // Apply (and immediately clear) any tag preset set by the Tag Manager
   useEffect(() => {
@@ -59,10 +67,6 @@ export function AnalysisView() {
     );
   }, [snippets, selectedTagIds, mode]);
 
-  const goToEntry = (entryId: string) => {
-    setSelectedEntry(entryId);
-    setCurrentView('code');
-  };
 
   if (!entries.length)
     return (
@@ -232,10 +236,10 @@ export function AnalysisView() {
                         {(() => { try { return format(parseISO(entry.date + 'T12:00:00'), 'MMM d, yyyy'); } catch { return entry.date; } })()}
                       </span>
                       <button
-                        onClick={() => goToEntry(entry.id)}
+                        onClick={() => toggleExpanded(s.id)}
                         className="text-blue-500 hover:text-blue-700 hover:underline"
                       >
-                        View in context →
+                        {expandedEntries.has(s.id) ? 'Collapse ↑' : 'See full entry ↓'}
                       </button>
                     </div>
                   )}
@@ -248,10 +252,15 @@ export function AnalysisView() {
                   "{s.text}"
                 </blockquote>
 
-                {entry && (
-                  <p className="text-xs text-gray-400 mt-2 truncate">
-                    {entry.text.length > 120 ? entry.text.slice(0, 120) + '…' : entry.text}
-                  </p>
+                {entry && expandedEntries.has(s.id) && (
+                  <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-700 leading-relaxed">
+                    <span>{entry.text.slice(0, s.startOffset)}</span>
+                    <mark
+                      className="rounded-sm"
+                      style={{ backgroundColor: primaryColor + '33', outline: `2px solid ${primaryColor}55`, outlineOffset: '1px' }}
+                    >{entry.text.slice(s.startOffset, s.endOffset)}</mark>
+                    <span>{entry.text.slice(s.endOffset)}</span>
+                  </div>
                 )}
 
                 <div className="mt-2 pt-2 border-t border-gray-100">
