@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Tag } from '../types';
 import { getEffectiveColor } from '../utils/tags';
+import { CodebookPrintView } from './CodebookPrintView';
 
 interface DetailsMeta {
   description: string;
@@ -23,6 +24,7 @@ export function TagManagerView() {
 
   const [detailsId, setDetailsId] = useState<string | null>(null);
   const [detailsMeta, setDetailsMeta] = useState<DetailsMeta>({ description: '', example: '', nonExample: '' });
+  const [showPrint, setShowPrint] = useState(false);
 
   const startEdit = (t: Tag) => { setEditId(t.id); setEditName(t.name); };
   const saveEdit = () => {
@@ -85,10 +87,22 @@ export function TagManagerView() {
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-1">Codebook</h2>
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-2xl font-bold text-gray-900">Codebook</h2>
+        <button
+          onClick={() => setShowPrint(true)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
+          </svg>
+          Print codebook
+        </button>
+      </div>
       <p className="text-gray-500 text-sm mb-6">
         Define your qualitative codes. Add a description, example, and non-example to document each one.
       </p>
+      {showPrint && <CodebookPrintView onClose={() => setShowPrint(false)} />}
 
       {/* Create */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
