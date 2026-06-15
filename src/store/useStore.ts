@@ -69,9 +69,24 @@ export const useStore = create<Store>()(
       },
 
       renameTag: (tagId, newName) =>
-        set((state) => ({
-          tags: state.tags.map((t) => (t.id === tagId ? { ...t, name: newName } : t)),
-        })),
+        set((state) => {
+          const trimmed = newName.trim();
+          const target = state.tags.find((t) => t.name === trimmed && t.id !== tagId);
+          if (target) {
+            // Merge: point all snippets from tagId to target.id, then remove tagId
+            return {
+              tags: state.tags.filter((t) => t.id !== tagId),
+              snippets: state.snippets.map((s) => {
+                if (!s.tagIds.includes(tagId)) return s;
+                const merged = [...new Set(s.tagIds.map((id) => (id === tagId ? target.id : id)))];
+                return { ...s, tagIds: merged };
+              }),
+            };
+          }
+          return {
+            tags: state.tags.map((t) => (t.id === tagId ? { ...t, name: trimmed } : t)),
+          };
+        }),
 
       updateTagMeta: (tagId, meta) =>
         set((state) => ({
