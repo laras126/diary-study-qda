@@ -9,13 +9,18 @@ import {
   exportToJSON,
 } from '../utils/export';
 
-export function ExportButton() {
+interface Props {
+  onExport?: () => void;
+}
+
+export function ExportButton({ onExport }: Props) {
   const { entries, tags, snippets } = useStore();
   const [open, setOpen] = useState(false);
   const ts = new Date().toISOString().split('T')[0];
 
   const dl = (content: string, name: string, mime: string) => {
     downloadFile(content, name, mime);
+    onExport?.();
     setOpen(false);
   };
 
@@ -55,7 +60,7 @@ export function ExportButton() {
             ))}
             <div className="border-t border-gray-100 mx-3 my-1" />
             <button
-              onClick={() => { downloadAll(entries, tags, snippets); setOpen(false); }}
+              onClick={() => { downloadAll(entries, tags, snippets); onExport?.(); setOpen(false); }}
               className="w-full text-left px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors"
             >
               Download all (4 files)

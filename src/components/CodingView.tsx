@@ -22,9 +22,10 @@ function formatShortDate(dateStr: string): string {
 import { useStore } from '../store/useStore';
 import { Snippet, Tag } from '../types';
 import { buildSegments, getTextOffset } from '../utils/highlights';
+import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function CodingView() {
-  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote } =
+  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote, addTag, updateSnippetTags } =
     useStore();
 
   const [pending, setPending] = useState<{ start: number; end: number; text: string } | null>(null);
@@ -33,6 +34,8 @@ export function CodingView() {
   const [overlapPickerPos, setOverlapPickerPos] = useState<{ x: number; y: number } | null>(null);
   const [overlapSnippetIds, setOverlapSnippetIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [addingChildFor, setAddingChildFor] = useState<string | null>(null);
+  const [childInput, setChildInput] = useState('');
 
   const textRef = useRef<HTMLDivElement>(null);
   const selectedEntry = entries.find((e) => e.id === selectedEntryId);
@@ -79,11 +82,36 @@ export function CodingView() {
   const prevEntry = currentIdx > 0 ? flatEntries[currentIdx - 1] : null;
   const nextEntry = currentIdx < flatEntries.length - 1 ? flatEntries[currentIdx + 1] : null;
 
+  const getParentPrefix = (snippetTagIds: string[]): string => {
+    const first = tags.find((t) => snippetTagIds.includes(t.id) && !isChildTag(t));
+    return first ? first.name + '/' : '';
+  };
+
+  const submitChildTag = (snippetId: string, snippetTagIds: string[], prefix: string) => {
+    const child = childInput.trim();
+    if (!child) return;
+    const fullName = prefix + child;
+    let tag = tags.find((t) => t.name === fullName);
+    if (!tag) tag = addTag(fullName);
+    if (!snippetTagIds.includes(tag.id)) {
+      updateSnippetTags(snippetId, [...snippetTagIds, tag.id]);
+    }
+    setAddingChildFor(null);
+    setChildInput('');
+  };
+
+  const cancelChildTag = () => {
+    setAddingChildFor(null);
+    setChildInput('');
+  };
+
   const navigateTo = (id: string) => {
     setSelectedEntry(id);
     setFocusedSnippetId(null);
     setOverlapSnippetIds([]);
     setOverlapPickerPos(null);
+    setAddingChildFor(null);
+    setChildInput('');
   };
 
   // Backspace deletes the focused snippet when not typing in an input
@@ -337,12 +365,51 @@ export function CodingView() {
                             title="Delete snippet"
                           >×</button>
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {sTags.map((t) => (
-                            <span key={t.id} className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: t.color }}>
-                              {t.name}
-                            </span>
-                          ))}
+                        <div className="flex flex-wrap gap-1 mt-1.5 items-center" onClick={(e) => e.stopPropagation()}>
+                          {sTags.map((t) => {
+                            const color = getEffectiveColor(t, tags);
+                            return isChildTag(t) ? (
+                              <span key={t.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
+                                {t.name}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); updateSnippetTags(s.id, s.tagIds.filter((id) => id !== t.id)); }}
+                                  className="text-white/60 hover:text-white leading-none"
+                                  title={`Remove ${t.name}`}
+                                >×</button>
+                              </span>
+                            ) : (
+                              <span key={t.id} className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
+                                {t.name}
+                              </span>
+                            );
+                          })}
+                          {addingChildFor === s.id ? (() => {
+                            const prefix = getParentPrefix(s.tagIds);
+                            return (
+                              <form
+                                onSubmit={(e) => { e.preventDefault(); submitChildTag(s.id, s.tagIds, prefix); }}
+                                className="flex items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {prefix && <span className="text-xs text-gray-400 font-mono">{prefix}</span>}
+                                <input
+                                  autoFocus
+                                  value={childInput}
+                                  onChange={(e) => setChildInput(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Escape' && cancelChildTag()}
+                                  placeholder="child name"
+                                  className="text-xs border border-gray-300 rounded px-1.5 py-0.5 w-24 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                                />
+                                <button type="submit" className="text-xs text-blue-600 hover:text-blue-800 font-medium">Add</button>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); cancelChildTag(); }} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
+                              </form>
+                            );
+                          })() : (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setAddingChildFor(s.id); setChildInput(''); }}
+                              className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
+                            >+ child tag</button>
+                          )}
                         </div>
                         {/* Annotation */}
                         <div className="mt-2 pt-2 border-t border-gray-200/60" onClick={(e) => e.stopPropagation()}>

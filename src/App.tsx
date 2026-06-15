@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStore } from './store/useStore';
 import { HomeView } from './components/HomeView';
 import { AboutView } from './components/AboutView';
@@ -26,8 +26,43 @@ function viewFromHash(): ViewType | null {
   return VALID_VIEWS.includes(slug as ViewType) ? (slug as ViewType) : null;
 }
 
+const LS_LAST_EXPORT = 'diary-qual-last-export';
+const LS_SEEN_NOTICE = 'diary-qual-seen-notice';
+const SESSION_START = Date.now();
+
+function formatLastExported(iso: string | null): string {
+  if (!iso) return 'never';
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
 export default function App() {
   const { currentView, setCurrentView, entries, tags, snippets } = useStore();
+
+  const [lastExported, setLastExported] = useState<string | null>(
+    () => localStorage.getItem(LS_LAST_EXPORT)
+  );
+  const [showBanner, setShowBanner] = useState(
+    () => !localStorage.getItem(LS_SEEN_NOTICE)
+  );
+
+  const handleExport = () => {
+    const now = new Date().toISOString();
+    localStorage.setItem(LS_LAST_EXPORT, now);
+    setLastExported(now);
+  };
+
+  const dismissBanner = () => {
+    localStorage.setItem(LS_SEEN_NOTICE, '1');
+    setShowBanner(false);
+  };
+
+  // Request persistent storage so the browser won't evict IndexedDB under pressure.
+  useEffect(() => { navigator.storage?.persist?.(); }, []);
 
   // On first load: if there's a valid hash, honour it; otherwise stamp the current view into the hash.
   useEffect(() => {
@@ -86,6 +121,9 @@ export default function App() {
             <span>{entries.length} entries</span>
             <span>{tags.length} tags</span>
             <span>{snippets.length} snippets</span>
+            <span className={lastExported && new Date(lastExported).getTime() >= SESSION_START ? 'text-white/60' : 'text-amber-400'}>
+              last backup: {formatLastExported(lastExported)}
+            </span>
           </div>
           {/* GitHub link */}
           <a
@@ -109,9 +147,25 @@ export default function App() {
           >
             larakarki.com
           </a>
-          <ExportButton />
+          <ExportButton onExport={handleExport} />
         </div>
       </header>
+
+      {/* Backup notice banner */}
+      {showBanner && (
+        <div className="shrink-0 bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center justify-between gap-4 text-sm">
+          <p className="text-amber-800">
+            Your data is stored in this browser only and may be lost if browser storage is cleared.{' '}
+            Use the <strong>Export</strong> button to download a backup and keep it safe.
+          </p>
+          <button
+            onClick={dismissBanner}
+            className="shrink-0 text-amber-700 hover:text-amber-900 font-medium"
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       <main className={`flex-1 min-h-0 ${currentView === 'code' ? 'overflow-hidden' : 'overflow-y-auto'}`}>

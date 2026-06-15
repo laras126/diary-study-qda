@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function AnalysisView() {
-  const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags } = useStore();
+  const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote } = useStore();
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [mode, setMode] = useState<'any' | 'all'>('any');
@@ -254,12 +254,21 @@ export function AnalysisView() {
                   </p>
                 )}
 
-                {s.note && (
-                  <div className="mt-2 pt-2 border-t border-gray-100 flex items-start gap-1.5">
-                    <span className="text-xs text-gray-400 shrink-0 mt-px">Note:</span>
-                    <p className="text-xs text-gray-600 leading-relaxed">{s.note}</p>
-                  </div>
-                )}
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  <textarea
+                    value={s.note}
+                    onChange={(e) => updateSnippetNote(s.id, e.target.value)}
+                    placeholder="Add a note…"
+                    rows={1}
+                    className="w-full text-xs text-gray-600 bg-transparent resize-none focus:outline-none placeholder:text-gray-300 leading-relaxed"
+                    style={{ minHeight: '1.25rem', height: s.note ? 'auto' : '1.25rem' }}
+                    onInput={(e) => {
+                      const el = e.currentTarget;
+                      el.style.height = 'auto';
+                      el.style.height = el.scrollHeight + 'px';
+                    }}
+                  />
+                </div>
               </div>
             );
           })}
