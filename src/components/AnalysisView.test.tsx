@@ -89,6 +89,30 @@ describe('AnalysisView', () => {
     expect(useStore.getState().selectedEntryId).toBe('e1');
   });
 
+  it('sets pendingFocusSnippetId to the correct snippet when View in context is clicked', async () => {
+    const user = userEvent.setup();
+    seed();
+    const snippets = useStore.getState().snippets;
+    render(<AnalysisView />);
+
+    const links = screen.getAllByRole('button', { name: /view in context/i });
+
+    await user.click(links[0]);
+    expect(useStore.getState().pendingFocusSnippetId).toBe(snippets[0].id);
+  });
+
+  it('sets a different pendingFocusSnippetId for each snippet row', async () => {
+    const user = userEvent.setup();
+    seed();
+    const snippets = useStore.getState().snippets;
+    render(<AnalysisView />);
+
+    const links = screen.getAllByRole('button', { name: /view in context/i });
+
+    await user.click(links[1]);
+    expect(useStore.getState().pendingFocusSnippetId).toBe(snippets[1].id);
+  });
+
   it('shows an empty state when no snippets exist', () => {
     useStore.getState().setEntries([{
       id: 'e1', originalId: '1', rowIndex: 0,

@@ -31,6 +31,8 @@ interface Store {
 
   setCurrentView: (view: ViewType) => void;
   setSelectedEntry: (entryId: string | null) => void;
+  pendingFocusSnippetId: string | null;
+  setPendingFocusSnippet: (id: string | null) => void;
   analysisPresetTagIds: string[];
   setAnalysisPreset: (tagIds: string[]) => void;
   restoreFromBackup: (data: { entries: Entry[]; tags: Tag[]; snippets: Snippet[] }) => void;
@@ -137,6 +139,8 @@ export const useStore = create<Store>()(
         set({ currentView: view });
       },
       setSelectedEntry: (entryId) => set({ selectedEntryId: entryId }),
+      pendingFocusSnippetId: null,
+      setPendingFocusSnippet: (id) => set({ pendingFocusSnippetId: id }),
       setAnalysisPreset: (tagIds) => set({ analysisPresetTagIds: tagIds }),
       restoreFromBackup: ({ entries, tags, snippets }) =>
         set({ entries, tags, snippets, currentView: 'home', selectedEntryId: null }),

@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function AnalysisView() {
-  const { entries, tags, snippets, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote } = useStore();
+  const { entries, tags, snippets, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote, setSelectedEntry, setCurrentView, setPendingFocusSnippet } = useStore();
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [mode, setMode] = useState<'any' | 'all'>('any');
@@ -12,6 +12,12 @@ export function AnalysisView() {
   const [childInput, setChildInput] = useState('');
   const childInputRef = useRef<HTMLInputElement>(null);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+
+  const goToEntry = (entryId: string, snippetId: string) => {
+    setSelectedEntry(entryId);
+    setPendingFocusSnippet(snippetId);
+    setCurrentView('code');
+  };
 
   const toggleExpanded = (snippetId: string) =>
     setExpandedEntries((prev) => {
@@ -240,6 +246,12 @@ export function AnalysisView() {
                         className="text-blue-500 hover:text-blue-700 hover:underline"
                       >
                         {expandedEntries.has(s.id) ? 'Collapse ↑' : 'See full entry ↓'}
+                      </button>
+                      <button
+                        onClick={() => goToEntry(entry.id, s.id)}
+                        className="text-blue-500 hover:text-blue-700 hover:underline"
+                      >
+                        View in context →
                       </button>
                     </div>
                   )}

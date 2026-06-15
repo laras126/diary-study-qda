@@ -25,7 +25,7 @@ import { buildSegments, getTextOffset } from '../utils/highlights';
 import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function CodingView() {
-  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote, addTag, updateSnippetTags } =
+  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote, addTag, updateSnippetTags, pendingFocusSnippetId, setPendingFocusSnippet } =
     useStore();
 
   const [pending, setPending] = useState<{ start: number; end: number; text: string } | null>(null);
@@ -113,6 +113,16 @@ export function CodingView() {
     setAddingChildFor(null);
     setChildInput('');
   };
+
+  // Consume a pending focus request from the Analysis view
+  useEffect(() => {
+    if (!pendingFocusSnippetId) return;
+    setFocusedSnippetId(pendingFocusSnippetId);
+    setPendingFocusSnippet(null);
+    setTimeout(() => {
+      document.getElementById(`snippet-${pendingFocusSnippetId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }, [pendingFocusSnippetId]);
 
   // Backspace deletes the focused snippet when not typing in an input
   useEffect(() => {
@@ -354,6 +364,7 @@ export function CodingView() {
                     return (
                       <div
                         key={s.id}
+                        id={`snippet-${s.id}`}
                         onClick={() => setFocusedSnippetId(focused ? null : s.id)}
                         className={`p-3 rounded-lg border transition-colors cursor-pointer ${focused ? 'border-blue-300 bg-blue-50' : 'border-gray-100 bg-gray-50 hover:bg-gray-100'}`}
                       >
