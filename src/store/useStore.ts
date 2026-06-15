@@ -21,6 +21,7 @@ interface Store {
 
   addTag: (name: string) => Tag;
   renameTag: (tagId: string, newName: string) => void;
+  updateTagMeta: (tagId: string, meta: { description?: string; example?: string; nonExample?: string }) => void;
   deleteTag: (tagId: string) => void;
 
   addSnippet: (data: Omit<Snippet, 'id' | 'createdAt'>) => void;
@@ -70,6 +71,11 @@ export const useStore = create<Store>()(
       renameTag: (tagId, newName) =>
         set((state) => ({
           tags: state.tags.map((t) => (t.id === tagId ? { ...t, name: newName } : t)),
+        })),
+
+      updateTagMeta: (tagId, meta) =>
+        set((state) => ({
+          tags: state.tags.map((t) => (t.id === tagId ? { ...t, ...meta } : t)),
         })),
 
       deleteTag: (tagId) =>

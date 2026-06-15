@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useStore } from '../store/useStore';
+import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function AnalysisView() {
   const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags } = useStore();
@@ -154,7 +155,7 @@ export function AnalysisView() {
           {filtered.map((s) => {
             const entry = entries.find((e) => e.id === s.entryId);
             const sTags = tags.filter((t) => s.tagIds.includes(t.id));
-            const primaryColor = sTags[0]?.color ?? '#d1d5db';
+            const primaryColor = sTags[0] ? getEffectiveColor(sTags[0], tags) : '#d1d5db';
 
             return (
               <div
@@ -163,15 +164,33 @@ export function AnalysisView() {
               >
                 <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                   <div className="flex flex-wrap gap-1 items-center">
-                    {sTags.map((t) => (
-                      <span
-                        key={t.id}
-                        className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
-                        style={{ backgroundColor: t.color }}
-                      >
-                        {t.name}
-                      </span>
-                    ))}
+                    {sTags.map((t) => {
+                      const color = getEffectiveColor(t, tags);
+                      return isChildTag(t) ? (
+                        <span
+                          key={t.id}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                          style={{ backgroundColor: color }}
+                        >
+                          {t.name}
+                          <button
+                            onClick={() => updateSnippetTags(s.id, s.tagIds.filter((id) => id !== t.id))}
+                            className="text-white/60 hover:text-white leading-none"
+                            title={`Remove ${t.name}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ) : (
+                        <span
+                          key={t.id}
+                          className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                          style={{ backgroundColor: color }}
+                        >
+                          {t.name}
+                        </span>
+                      );
+                    })}
                     {addingChildFor === s.id ? (() => {
                       const prefix = getParentPrefix(s.tagIds);
                       return (

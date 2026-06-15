@@ -1,5 +1,17 @@
 import { Tag } from '../types';
 
+export function isChildTag(tag: Tag): boolean {
+  return tag.name.includes('/');
+}
+
+export function getEffectiveColor(tag: Tag, allTags: Tag[]): string {
+  const i = tag.name.indexOf('/');
+  if (i === -1) return tag.color;
+  const parentName = tag.name.slice(0, i);
+  const parent = allTags.find((t) => t.name === parentName);
+  return parent?.color ?? tag.color;
+}
+
 export function parseTagName(name: string): { parent: string | null; child: string } {
   const i = name.indexOf(' / ');
   return i === -1

@@ -51,6 +51,9 @@ export function exportTagsToCSV(tags: Tag[], snippets: Snippet[]): string {
       name: t.name,
       color: t.color,
       snippetCount: snippets.filter((s) => s.tagIds.includes(t.id)).length,
+      description: t.description ?? '',
+      example: t.example ?? '',
+      nonExample: t.nonExample ?? '',
     }))
   );
 }

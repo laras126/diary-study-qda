@@ -14,7 +14,7 @@ const NAV: { id: ViewType; label: string }[] = [
   { id: 'import', label: 'Import' },
   { id: 'clean', label: 'Clean' },
   { id: 'code', label: 'Coding' },
-  { id: 'tags', label: 'Tags' },
+  { id: 'tags', label: 'Codebook' },
   { id: 'analysis', label: 'Analysis' },
   { id: 'about', label: 'About' },
 ];
