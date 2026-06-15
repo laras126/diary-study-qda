@@ -23,6 +23,63 @@ describe('tag management', () => {
     expect(useStore.getState().tags.find((t) => t.id === tag.id)!.name).toBe('New name');
   });
 
+  describe('renameTag merge – when the target name already exists', () => {
+    it('removes the renamed tag and keeps only the existing one', () => {
+      const t1 = useStore.getState().addTag('use case/c1');
+      const t2 = useStore.getState().addTag('use case/c2');
+
+      useStore.getState().renameTag(t1.id, 'use case/c2');
+
+      const { tags } = useStore.getState();
+      expect(tags).toHaveLength(1);
+      expect(tags[0].id).toBe(t2.id);
+    });
+
+    it('reassigns snippets from the old tag to the existing tag', () => {
+      const t1 = useStore.getState().addTag('use case/c1');
+      const t2 = useStore.getState().addTag('use case/c2');
+      useStore.getState().addSnippet({ entryId: 'e1', startOffset: 0, endOffset: 5, text: 'hi', tagIds: [t1.id], note: '' });
+
+      useStore.getState().renameTag(t1.id, 'use case/c2');
+
+      expect(useStore.getState().snippets[0].tagIds).toEqual([t2.id]);
+    });
+
+    it('deduplicates when a snippet already had both tags', () => {
+      const t1 = useStore.getState().addTag('use case/c1');
+      const t2 = useStore.getState().addTag('use case/c2');
+      useStore.getState().addSnippet({ entryId: 'e1', startOffset: 0, endOffset: 5, text: 'hi', tagIds: [t1.id, t2.id], note: '' });
+
+      useStore.getState().renameTag(t1.id, 'use case/c2');
+
+      expect(useStore.getState().snippets[0].tagIds).toEqual([t2.id]);
+    });
+
+    it('does not affect snippets that did not have the renamed tag', () => {
+      const t1 = useStore.getState().addTag('use case/c1');
+      useStore.getState().addTag('use case/c2');
+      const t3 = useStore.getState().addTag('other');
+      useStore.getState().addSnippet({ entryId: 'e1', startOffset: 0, endOffset: 5, text: 'hi', tagIds: [t3.id], note: '' });
+
+      useStore.getState().renameTag(t1.id, 'use case/c2');
+
+      expect(useStore.getState().snippets[0].tagIds).toEqual([t3.id]);
+    });
+
+    it('preserves the existing tag codebook details on merge', () => {
+      const t1 = useStore.getState().addTag('use case/c1');
+      const t2 = useStore.getState().addTag('use case/c2');
+      useStore.getState().updateTagMeta(t2.id, { description: 'keep this', example: 'ex', nonExample: 'non' });
+
+      useStore.getState().renameTag(t1.id, 'use case/c2');
+
+      const { tags } = useStore.getState();
+      expect(tags[0].description).toBe('keep this');
+      expect(tags[0].example).toBe('ex');
+      expect(tags[0].nonExample).toBe('non');
+    });
+  });
+
   it('deleteTag removes the tag and any snippets that relied solely on it', () => {
     const tag = useStore.getState().addTag('ToDelete');
     useStore.getState().addSnippet({ entryId: 'e1', startOffset: 0, endOffset: 5, text: 'hello', tagIds: [tag.id], note: '' });
