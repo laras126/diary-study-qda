@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useStore } from '../store/useStore';
 
 export function AnalysisView() {
-  const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset } = useStore();
+  const { entries, tags, snippets, setSelectedEntry, setCurrentView, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags } = useStore();
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [mode, setMode] = useState<'any' | 'all'>('any');
+  const [addingChildFor, setAddingChildFor] = useState<string | null>(null);
+  const [childInput, setChildInput] = useState('');
+  const childInputRef = useRef<HTMLInputElement>(null);
 
   // Apply (and immediately clear) any tag preset set by the Tag Manager
   useEffect(() => {
@@ -18,6 +21,33 @@ export function AnalysisView() {
 
   const toggle = (id: string) =>
     setSelectedTagIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const getParentPrefix = (snippetTagIds: string[]): string => {
+    if (selectedTagIds.length === 1) {
+      const tag = tags.find((t) => t.id === selectedTagIds[0]);
+      if (tag) return tag.name + '/';
+    }
+    const first = tags.find((t) => snippetTagIds.includes(t.id));
+    return first ? first.name + '/' : '';
+  };
+
+  const submitChildTag = (snippetId: string, snippetTagIds: string[], prefix: string) => {
+    const child = childInput.trim();
+    if (!child) return;
+    const fullName = prefix + child;
+    let tag = tags.find((t) => t.name === fullName);
+    if (!tag) tag = addTag(fullName);
+    if (!snippetTagIds.includes(tag.id)) {
+      updateSnippetTags(snippetId, [...snippetTagIds, tag.id]);
+    }
+    setAddingChildFor(null);
+    setChildInput('');
+  };
+
+  const cancelChildTag = () => {
+    setAddingChildFor(null);
+    setChildInput('');
+  };
 
   const filtered = useMemo(() => {
     if (!selectedTagIds.length) return snippets;
@@ -132,7 +162,7 @@ export function AnalysisView() {
                 className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow"
               >
                 <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 items-center">
                     {sTags.map((t) => (
                       <span
                         key={t.id}
@@ -142,6 +172,37 @@ export function AnalysisView() {
                         {t.name}
                       </span>
                     ))}
+                    {addingChildFor === s.id ? (() => {
+                      const prefix = getParentPrefix(s.tagIds);
+                      return (
+                        <form
+                          onSubmit={(e) => { e.preventDefault(); submitChildTag(s.id, s.tagIds, prefix); }}
+                          className="flex items-center gap-1"
+                        >
+                          {prefix && (
+                            <span className="text-xs text-gray-400 font-mono">{prefix}</span>
+                          )}
+                          <input
+                            ref={childInputRef}
+                            autoFocus
+                            value={childInput}
+                            onChange={(e) => setChildInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Escape' && cancelChildTag()}
+                            placeholder="child name"
+                            className="text-xs border border-gray-300 rounded px-1.5 py-0.5 w-28 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          />
+                          <button type="submit" className="text-xs text-blue-600 hover:text-blue-800 font-medium">Add</button>
+                          <button type="button" onClick={cancelChildTag} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
+                        </form>
+                      );
+                    })() : (
+                      <button
+                        onClick={() => { setAddingChildFor(s.id); setChildInput(''); }}
+                        className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
+                      >
+                        + child tag
+                      </button>
+                    )}
                   </div>
                   {entry && (
                     <div className="flex items-center gap-2 text-xs shrink-0">
