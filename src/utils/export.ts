@@ -80,15 +80,19 @@ export function downloadFile(
   download(content, filename, mime);
 }
 
-export function downloadAll(entries: Entry[], tags: Tag[], snippets: Snippet[]) {
+export function downloadCSV(entries: Entry[], tags: Tag[], snippets: Snippet[]) {
   const ts = new Date().toISOString().split('T')[0];
-  const pairs: [string, string, string][] = [
-    [exportEntriesToCSV(entries), `entries_${ts}.csv`, 'text/csv'],
-    [exportSnippetsToCSV(snippets, entries, tags), `snippets_${ts}.csv`, 'text/csv'],
-    [exportTagsToCSV(tags, snippets), `tags_${ts}.csv`, 'text/csv'],
-    [exportToJSON(entries, tags, snippets), `full_export_${ts}.json`, 'application/json'],
+  const pairs: [string, string][] = [
+    [exportEntriesToCSV(entries), `entries_${ts}.csv`],
+    [exportSnippetsToCSV(snippets, entries, tags), `snippets_${ts}.csv`],
+    [exportTagsToCSV(tags, snippets), `tags_${ts}.csv`],
   ];
-  pairs.forEach(([content, name, mime], i) => {
-    setTimeout(() => download(content, name, mime), i * 120);
+  pairs.forEach(([content, name], i) => {
+    setTimeout(() => download(content, name, 'text/csv'), i * 120);
   });
+}
+
+export function downloadJSON(entries: Entry[], tags: Tag[], snippets: Snippet[]) {
+  const ts = new Date().toISOString().split('T')[0];
+  download(exportToJSON(entries, tags, snippets), `full_export_${ts}.json`, 'application/json');
 }
