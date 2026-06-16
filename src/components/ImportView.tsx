@@ -97,9 +97,13 @@ export function ImportView() {
     }
   };
 
+  const newOnly = preview
+    ? preview.filter((p) => !existing.some((e) => e.originalId === p.originalId && e.type === p.type))
+    : [];
+
   const confirmImport = (replace: boolean) => {
     if (!preview) return;
-    setEntries(replace ? preview : [...existing, ...preview]);
+    setEntries(replace ? preview : [...existing, ...newOnly]);
     setCurrentView('clean');
   };
 
@@ -128,6 +132,9 @@ export function ImportView() {
         </ul>
         <p className="text-blue-700">
           The tool will try to auto-detect which columns are which. You can confirm or adjust the mapping after uploading.
+        </p>
+        <p className="text-blue-700">
+          <strong>Already have data?</strong> You can re-upload a full CSV export from your form at any time — entries you've already imported will be detected and skipped, so your coding and date corrections are preserved.
         </p>
       </div>
 
@@ -252,13 +259,27 @@ export function ImportView() {
             )}
           </div>
 
+          {existing.length > 0 && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
+              {newOnly.length === 0
+                ? 'All entries in this file are already imported — nothing new to add.'
+                : <>
+                    <strong>{newOnly.length} new {newOnly.length === 1 ? 'entry' : 'entries'}</strong> detected.{' '}
+                    {preview!.length - newOnly.length > 0 && (
+                      <>{preview!.length - newOnly.length} already-imported {preview!.length - newOnly.length === 1 ? 'entry' : 'entries'} will be skipped so your coding and date corrections are preserved.</>
+                    )}
+                  </>
+              }
+            </div>
+          )}
           <div className="flex gap-3">
             {existing.length > 0 && (
               <button
                 onClick={() => confirmImport(false)}
-                className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                disabled={newOnly.length === 0}
+                className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Append to {existing.length} existing
+                Add {newOnly.length} new to {existing.length} existing
               </button>
             )}
             <button
