@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useStore } from './store/useStore';
 import { HomeView } from './components/HomeView';
 import { AboutView } from './components/AboutView';
@@ -29,6 +29,8 @@ function viewFromHash(): ViewType | null {
 const LS_LAST_EXPORT = 'diary-qual-last-export';
 const LS_SEEN_NOTICE = 'diary-qual-seen-notice';
 const SESSION_START = Date.now();
+const IDLE_MS = 30 * 60 * 1000; // 30 minutes
+const CHANGE_THRESHOLD = 20;
 
 function formatLastExported(iso: string | null): string {
   if (!iso) return 'never';
@@ -50,11 +52,13 @@ export default function App() {
     () => !localStorage.getItem(LS_SEEN_NOTICE)
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showIdleBanner, setShowIdleBanner] = useState(false);
 
   const handleExport = () => {
     const now = new Date().toISOString();
     localStorage.setItem(LS_LAST_EXPORT, now);
     setLastExported(now);
+    setShowIdleBanner(false);
   };
 
   const dismissBanner = () => {
@@ -64,6 +68,23 @@ export default function App() {
 
   // Request persistent storage so the browser won't evict IndexedDB under pressure.
   useEffect(() => { navigator.storage?.persist?.(); }, []);
+
+  // Show a backup reminder after 30 minutes of inactivity (only when data exists).
+  useEffect(() => {
+    if (!entries.length) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => setShowIdleBanner(true), IDLE_MS);
+    };
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'] as const;
+    events.forEach((e) => window.addEventListener(e, resetTimer, { passive: true }));
+    resetTimer();
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, [entries.length]);
 
   // On first load: if there's a valid hash, honour it; otherwise stamp the current view into the hash.
   useEffect(() => {
@@ -205,6 +226,21 @@ export default function App() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Idle backup reminder */}
+      {showIdleBanner && !showBanner && (
+        <div className="shrink-0 bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center justify-between gap-4 text-sm">
+          <p className="text-amber-800">
+            You've been inactive for 30 minutes — consider downloading a backup so your work is safe.
+          </p>
+          <div className="flex items-center gap-3 shrink-0">
+            <ExportButton onExport={handleExport} />
+            <button onClick={() => setShowIdleBanner(false)} className="text-amber-700 hover:text-amber-900 font-medium">
+              Dismiss
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Backup notice banner */}
