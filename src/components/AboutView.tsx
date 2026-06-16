@@ -64,6 +64,53 @@ export function AboutView() {
         </ol>
       </div>
 
+      {/* Features */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-7">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Features</h3>
+        <div className="space-y-4">
+          {[
+            {
+              icon: '📥',
+              title: 'Import',
+              desc: 'Upload a CSV exported from MS Forms or Google Forms. AM and PM columns are detected automatically.',
+            },
+            {
+              icon: '✏️',
+              title: 'Clean',
+              desc: 'Review and correct entries submitted on the wrong day before coding begins.',
+            },
+            {
+              icon: '🏷️',
+              title: 'Coding',
+              desc: 'Select text in any entry to create a coded snippet. Assign one or more tags, add child tags for finer-grained codes, and leave a note on any snippet.',
+            },
+            {
+              icon: '📖',
+              title: 'Codebook',
+              desc: 'Manage your codes. Add a description, example, and non-example to each code to document your coding scheme. Rename a code to an existing one to merge them. Print or save the codebook as a PDF.',
+            },
+            {
+              icon: '🔍',
+              title: 'Analysis',
+              desc: 'Browse all snippets filtered by one or more tags. Expand the full entry text to see a snippet in context, or jump directly to the Coding view with the snippet highlighted. Edit tags or add notes without leaving the view.',
+            },
+            {
+              icon: '💾',
+              title: 'Export backup',
+              desc: 'Download a full JSON backup of all entries, codes, and snippets at any time. Import it again later to restore your work.',
+            },
+          ].map(({ icon, title, desc }) => (
+            <div key={title} className="flex gap-4">
+              <span className="text-xl shrink-0 mt-0.5">{icon}</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-800 mb-0.5">{title}</p>
+                <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Data & privacy */}
       <div className="bg-white rounded-2xl border border-gray-200 p-7">
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Data &amp; privacy</h3>

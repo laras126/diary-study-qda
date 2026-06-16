@@ -430,7 +430,7 @@ export function CodingView() {
                             onClick={(e) => e.stopPropagation()}
                             placeholder="Add a note..."
                             rows={1}
-                            className="w-full text-xs text-gray-600 bg-transparent resize-none focus:outline-none placeholder:text-gray-300 leading-relaxed"
+                            className="w-full text-xs text-gray-700 bg-gray-50 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400 leading-relaxed"
                             style={{ minHeight: '1.25rem', height: s.note ? 'auto' : '1.25rem' }}
                             onInput={(e) => {
                               const t = e.currentTarget;
