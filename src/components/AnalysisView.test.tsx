@@ -6,7 +6,7 @@ import { useStore } from '../store/useStore';
 
 const BASE_ENTRY = {
   originalId: '1', rowIndex: 0, startTime: '', completionTime: '',
-  dateModified: false as const,
+  dateModified: false as const, originalDate: '2026-06-02',
 };
 
 function makeEntry(overrides: Partial<typeof BASE_ENTRY & { id: string; type: 'AM' | 'PM'; date: string; text: string }>) {
