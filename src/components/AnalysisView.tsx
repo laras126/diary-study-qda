@@ -5,16 +5,21 @@ import { isChildTag, getEffectiveColor } from '../utils/tags';
 import { Snippet } from '../types';
 
 export function AnalysisView() {
-  const { entries, tags, snippets, analysisPresetTagIds, setAnalysisPreset, addTag, updateSnippetTags, updateSnippetNote, setSelectedEntry, setCurrentView, setPendingFocusSnippet } = useStore();
+  const {
+    entries, tags, snippets,
+    analysisPresetTagIds, setAnalysisPreset,
+    analysisSelectedTagIds: selectedTagIds, setAnalysisSelectedTagIds: setSelectedTagIds,
+    analysisMode: mode, setAnalysisMode: setMode,
+    analysisCompareMode: compareMode, setAnalysisCompareMode: setCompareMode,
+    addTag, updateSnippetTags, updateSnippetNote,
+    setSelectedEntry, setCurrentView, setPendingFocusSnippet,
+  } = useStore();
 
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [mode, setMode] = useState<'any' | 'all'>('any');
   const [addingCodeFor, setAddingCodeFor] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState('');
   const codeInputRef = useRef<HTMLInputElement>(null);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [editingParentTag, setEditingParentTag] = useState<{ snippetId: string; tagId: string } | null>(null);
-  const [compareMode, setCompareMode] = useState(false);
 
   const parentTags = useMemo(() => tags.filter((t) => !isChildTag(t)), [tags]);
 
@@ -50,7 +55,7 @@ export function AnalysisView() {
   }, [analysisPresetTagIds]);
 
   const toggle = (id: string) =>
-    setSelectedTagIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelectedTagIds(selectedTagIds.includes(id) ? selectedTagIds.filter((x) => x !== id) : [...selectedTagIds, id]);
 
   const submitCode = (snippetId: string, currentTagIds: string[]) => {
     const name = codeInput.trim();
@@ -381,7 +386,7 @@ export function AnalysisView() {
         </div>
         {filtered.length > 0 && (
           <button
-            onClick={() => setCompareMode((v) => !v)}
+            onClick={() => setCompareMode(!compareMode)}
             className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${
               compareMode
                 ? 'bg-gray-900 text-white border-gray-900'
