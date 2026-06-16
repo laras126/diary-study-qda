@@ -377,8 +377,9 @@ export function CodingView() {
                             onClick={(e) => e.stopPropagation()}
                             placeholder="Add a note..."
                             rows={1}
+                            ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
                             className="w-full text-xs text-gray-700 bg-gray-50 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400 leading-relaxed"
-                            style={{ minHeight: '1.25rem', height: s.note ? 'auto' : '1.25rem' }}
+                            style={{ minHeight: '1.25rem' }}
                             onInput={(e) => {
                               const t = e.currentTarget;
                               t.style.height = 'auto';
