@@ -12,6 +12,20 @@ export function AnalysisView() {
   const [childInput, setChildInput] = useState('');
   const childInputRef = useRef<HTMLInputElement>(null);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  const [editingParentTag, setEditingParentTag] = useState<{ snippetId: string; tagId: string } | null>(null);
+
+  const parentTags = useMemo(() => tags.filter((t) => !isChildTag(t)), [tags]);
+
+  const swapParentTag = (snippetId: string, oldTagId: string, newTagId: string, currentTagIds: string[]) => {
+    const deduped = [...new Set(currentTagIds.map((id) => (id === oldTagId ? newTagId : id)))];
+    updateSnippetTags(snippetId, deduped);
+    setEditingParentTag(null);
+  };
+
+  const removeParentTag = (snippetId: string, tagId: string, currentTagIds: string[]) => {
+    updateSnippetTags(snippetId, currentTagIds.filter((id) => id !== tagId));
+    setEditingParentTag(null);
+  };
 
   const goToEntry = (entryId: string, snippetId: string) => {
     setSelectedEntry(entryId);
@@ -192,12 +206,48 @@ export function AnalysisView() {
                           </button>
                         </span>
                       ) : (
-                        <span
-                          key={t.id}
-                          className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
-                          style={{ backgroundColor: color }}
-                        >
-                          {t.name}
+                        <span key={t.id} className="relative">
+                          <button
+                            onClick={() => setEditingParentTag(
+                              editingParentTag?.snippetId === s.id && editingParentTag?.tagId === t.id
+                                ? null
+                                : { snippetId: s.id, tagId: t.id }
+                            )}
+                            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white font-medium hover:opacity-80 transition-opacity"
+                            style={{ backgroundColor: color }}
+                            title="Click to change tag"
+                          >
+                            {t.name}
+                            <svg className="w-2.5 h-2.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z" />
+                            </svg>
+                          </button>
+                          {editingParentTag?.snippetId === s.id && editingParentTag?.tagId === t.id && (
+                            <>
+                              <div className="fixed inset-0" style={{ zIndex: 48 }} onClick={() => setEditingParentTag(null)} />
+                              <div className="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 w-48" style={{ zIndex: 49 }}>
+                                {parentTags.map((pt) => (
+                                  <button
+                                    key={pt.id}
+                                    onClick={() => swapParentTag(s.id, t.id, pt.id, s.tagIds)}
+                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-gray-50"
+                                  >
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: pt.color }} />
+                                    <span className={pt.id === t.id ? 'font-semibold text-gray-900' : 'text-gray-700'}>{pt.name}</span>
+                                    {pt.id === t.id && <span className="ml-auto text-gray-400">current</span>}
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-100 mt-1 pt-1">
+                                  <button
+                                    onClick={() => removeParentTag(s.id, t.id, s.tagIds)}
+                                    className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50"
+                                  >
+                                    Remove tag
+                                  </button>
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </span>
                       );
                     })}
