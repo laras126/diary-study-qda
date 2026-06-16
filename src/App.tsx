@@ -49,6 +49,7 @@ export default function App() {
   const [showBanner, setShowBanner] = useState(
     () => !localStorage.getItem(LS_SEEN_NOTICE)
   );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleExport = () => {
     const now = new Date().toISOString();
@@ -88,22 +89,28 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handler);
   }, []);
 
+  const navigate = (view: ViewType) => {
+    setCurrentView(view);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="shrink-0 bg-gray-900 text-white px-5 h-12 flex items-center justify-between">
+      <header className="shrink-0 bg-gray-900 text-white px-5 h-12 flex items-center justify-between relative z-40">
         <div className="flex items-center gap-5">
           <button
-            onClick={() => setCurrentView('home')}
+            onClick={() => navigate('home')}
             className="text-sm font-bold tracking-widest text-white/70 uppercase hover:text-white transition-colors"
           >
             Diary Study QDA
           </button>
-          <nav className="flex gap-0.5">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-0.5">
             {NAV.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setCurrentView(item.id)}
+                onClick={() => navigate(item.id)}
                 className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
                   currentView === item.id
                     ? 'bg-white/20 text-white font-medium'
@@ -117,7 +124,7 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex gap-4 text-xs text-white/60">
+          <div className="hidden xl:flex gap-4 text-xs text-white/60">
             <span>{entries.length} entries</span>
             <span>{tags.length} tags</span>
             <span>{snippets.length} snippets</span>
@@ -131,7 +138,7 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             title="View source on GitHub"
-            className="text-white/60 hover:text-white transition-colors"
+            className="text-white/60 hover:text-white transition-colors hidden xl:block"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
@@ -143,13 +150,62 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             title="Made by Lara Karki"
-            className="text-xs text-white/60 hover:text-white transition-colors hidden sm:block"
+            className="text-xs text-white/60 hover:text-white transition-colors hidden lg:block"
           >
             larakarki.com
           </a>
-          <ExportButton onExport={handleExport} />
+          <div className="hidden md:flex">
+            <ExportButton onExport={handleExport} />
+          </div>
+          {/* Hamburger (mobile only) */}
+          <button
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 text-white/70 hover:text-white transition-colors"
+            aria-label="Toggle menu"
+          >
+            <span className={`block w-5 h-0.5 bg-current transition-transform origin-center ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-current transition-opacity ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-current transition-transform origin-center ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
         </div>
       </header>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <>
+          <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMobileMenuOpen(false)} />
+          <div className="relative z-40 md:hidden bg-gray-900 border-t border-white/10 shadow-xl">
+            <nav className="flex flex-col py-2">
+              {NAV.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => navigate(item.id)}
+                  className={`px-5 py-3 text-sm text-left transition-colors ${
+                    currentView === item.id
+                      ? 'bg-white/20 text-white font-medium'
+                      : 'text-white/60 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            <div className="border-t border-white/10 px-5 py-3 flex items-center justify-between">
+              <div className="flex gap-3 text-xs text-white/50">
+                <span>{entries.length} entries</span>
+                <span>{tags.length} tags</span>
+                <span>{snippets.length} snippets</span>
+              </div>
+              <ExportButton onExport={handleExport} />
+            </div>
+            <div className="px-5 pb-3 text-xs">
+              <span className={lastExported && new Date(lastExported).getTime() >= SESSION_START ? 'text-white/40' : 'text-amber-400'}>
+                last backup: {formatLastExported(lastExported)}
+              </span>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Backup notice banner */}
       {showBanner && (
