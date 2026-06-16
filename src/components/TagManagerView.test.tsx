@@ -9,16 +9,16 @@ function renderTagManager() {
 }
 
 describe('TagManagerView', () => {
-  it('shows an empty state message when there are no tags', () => {
+  it('shows an empty state message when there are no codes', () => {
     renderTagManager();
-    expect(screen.getByText(/no tags yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/no codes yet/i)).toBeInTheDocument();
   });
 
-  it('creates a tag when the user types a name and clicks Create', async () => {
+  it('creates a code when the user types a name and clicks Create', async () => {
     const user = userEvent.setup();
     renderTagManager();
 
-    await user.type(screen.getByPlaceholderText(/tag name/i), 'Frustration');
+    await user.type(screen.getByPlaceholderText(/code name/i), 'Frustration');
     await user.click(screen.getByRole('button', { name: /create/i }));
 
     expect(useStore.getState().tags).toHaveLength(1);
@@ -26,11 +26,11 @@ describe('TagManagerView', () => {
     expect(screen.getByText('Frustration')).toBeInTheDocument();
   });
 
-  it('creates a tag when the user presses Enter', async () => {
+  it('creates a code when the user presses Enter', async () => {
     const user = userEvent.setup();
     renderTagManager();
 
-    await user.type(screen.getByPlaceholderText(/tag name/i), 'Quick tag{Enter}');
+    await user.type(screen.getByPlaceholderText(/code name/i), 'Quick tag{Enter}');
 
     expect(useStore.getState().tags[0].name).toBe('Quick tag');
   });
