@@ -22,9 +22,10 @@ function formatShortDate(dateStr: string): string {
 import { useStore } from '../store/useStore';
 import { Snippet, Tag } from '../types';
 import { buildSegments, getTextOffset } from '../utils/highlights';
+import { isChildTag, getEffectiveColor } from '../utils/tags';
 
 export function CodingView() {
-  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote } =
+  const { entries, tags, snippets, selectedEntryId, setSelectedEntry, addSnippet, deleteSnippet, updateSnippetNote, addTag, updateSnippetTags, pendingFocusSnippetId, setPendingFocusSnippet } =
     useStore();
 
   const [pending, setPending] = useState<{ start: number; end: number; text: string } | null>(null);
@@ -84,7 +85,18 @@ export function CodingView() {
     setFocusedSnippetId(null);
     setOverlapSnippetIds([]);
     setOverlapPickerPos(null);
+
   };
+
+  // Consume a pending focus request from the Analysis view
+  useEffect(() => {
+    if (!pendingFocusSnippetId) return;
+    setFocusedSnippetId(pendingFocusSnippetId);
+    setPendingFocusSnippet(null);
+    setTimeout(() => {
+      document.getElementById(`snippet-${pendingFocusSnippetId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }, [pendingFocusSnippetId]);
 
   // Backspace deletes the focused snippet when not typing in an input
   useEffect(() => {
@@ -326,6 +338,7 @@ export function CodingView() {
                     return (
                       <div
                         key={s.id}
+                        id={`snippet-${s.id}`}
                         onClick={() => setFocusedSnippetId(focused ? null : s.id)}
                         className={`p-3 rounded-lg border transition-colors cursor-pointer ${focused ? 'border-blue-300 bg-blue-50' : 'border-gray-100 bg-gray-50 hover:bg-gray-100'}`}
                       >
@@ -337,12 +350,24 @@ export function CodingView() {
                             title="Delete snippet"
                           >×</button>
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {sTags.map((t) => (
-                            <span key={t.id} className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: t.color }}>
-                              {t.name}
-                            </span>
-                          ))}
+                        <div className="flex flex-wrap gap-1 mt-1.5 items-center" onClick={(e) => e.stopPropagation()}>
+                          {sTags.map((t) => {
+                            const color = getEffectiveColor(t, tags);
+                            return isChildTag(t) ? (
+                              <span key={t.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
+                                {t.name}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); updateSnippetTags(s.id, s.tagIds.filter((id) => id !== t.id)); }}
+                                  className="text-white/60 hover:text-white leading-none"
+                                  title={`Remove ${t.name}`}
+                                >×</button>
+                              </span>
+                            ) : (
+                              <span key={t.id} className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: color }}>
+                                {t.name}
+                              </span>
+                            );
+                          })}
                         </div>
                         {/* Annotation */}
                         <div className="mt-2 pt-2 border-t border-gray-200/60" onClick={(e) => e.stopPropagation()}>
@@ -352,8 +377,9 @@ export function CodingView() {
                             onClick={(e) => e.stopPropagation()}
                             placeholder="Add a note..."
                             rows={1}
-                            className="w-full text-xs text-gray-600 bg-transparent resize-none focus:outline-none placeholder:text-gray-300 leading-relaxed"
-                            style={{ minHeight: '1.25rem', height: s.note ? 'auto' : '1.25rem' }}
+                            ref={(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }}
+                            className="w-full text-xs text-gray-700 bg-gray-50 rounded px-2 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-gray-300 placeholder:text-gray-400 leading-relaxed"
+                            style={{ minHeight: '1.25rem' }}
                             onInput={(e) => {
                               const t = e.currentTarget;
                               t.style.height = 'auto';

@@ -31,8 +31,16 @@ interface Store {
 
   setCurrentView: (view: ViewType) => void;
   setSelectedEntry: (entryId: string | null) => void;
+  pendingFocusSnippetId: string | null;
+  setPendingFocusSnippet: (id: string | null) => void;
   analysisPresetTagIds: string[];
   setAnalysisPreset: (tagIds: string[]) => void;
+  analysisSelectedTagIds: string[];
+  analysisMode: 'any' | 'all';
+  analysisCompareMode: boolean;
+  setAnalysisSelectedTagIds: (ids: string[]) => void;
+  setAnalysisMode: (mode: 'any' | 'all') => void;
+  setAnalysisCompareMode: (on: boolean) => void;
   restoreFromBackup: (data: { entries: Entry[]; tags: Tag[]; snippets: Snippet[] }) => void;
   clearAll: () => void;
 }
@@ -46,6 +54,9 @@ export const useStore = create<Store>()(
       currentView: 'home',
       selectedEntryId: null,
       analysisPresetTagIds: [],
+      analysisSelectedTagIds: [],
+      analysisMode: 'any',
+      analysisCompareMode: false,
 
       setEntries: (entries) => set({ entries }),
 
@@ -137,7 +148,12 @@ export const useStore = create<Store>()(
         set({ currentView: view });
       },
       setSelectedEntry: (entryId) => set({ selectedEntryId: entryId }),
+      pendingFocusSnippetId: null,
+      setPendingFocusSnippet: (id) => set({ pendingFocusSnippetId: id }),
       setAnalysisPreset: (tagIds) => set({ analysisPresetTagIds: tagIds }),
+      setAnalysisSelectedTagIds: (ids) => set({ analysisSelectedTagIds: ids }),
+      setAnalysisMode: (mode) => set({ analysisMode: mode }),
+      setAnalysisCompareMode: (on) => set({ analysisCompareMode: on }),
       restoreFromBackup: ({ entries, tags, snippets }) =>
         set({ entries, tags, snippets, currentView: 'home', selectedEntryId: null }),
       clearAll: () =>

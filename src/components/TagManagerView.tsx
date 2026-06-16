@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Tag } from '../types';
 import { getEffectiveColor } from '../utils/tags';
+import { CodebookPrintView } from './CodebookPrintView';
 
 interface DetailsMeta {
   description: string;
@@ -23,6 +24,7 @@ export function TagManagerView() {
 
   const [detailsId, setDetailsId] = useState<string | null>(null);
   const [detailsMeta, setDetailsMeta] = useState<DetailsMeta>({ description: '', example: '', nonExample: '' });
+  const [showPrint, setShowPrint] = useState(false);
 
   const startEdit = (t: Tag) => { setEditId(t.id); setEditName(t.name); };
   const saveEdit = () => {
@@ -62,8 +64,8 @@ export function TagManagerView() {
   const handleDelete = (t: Tag) => {
     const count = snippets.filter((s) => s.tagIds.includes(t.id)).length;
     const msg = count > 0
-      ? `Delete "${t.name}"? It's used on ${count} snippet${count !== 1 ? 's' : ''}. Those snippets will also be removed if they have no other tags.`
-      : `Delete tag "${t.name}"?`;
+      ? `Delete "${t.name}"? It's used on ${count} snippet${count !== 1 ? 's' : ''}. Those snippets will also be removed if they have no other codes.`
+      : `Delete code "${t.name}"?`;
     if (window.confirm(msg)) deleteTag(t.id);
   };
 
@@ -85,10 +87,22 @@ export function TagManagerView() {
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-900 mb-1">Codebook</h2>
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-2xl font-bold text-gray-900">Codebook</h2>
+        <button
+          onClick={() => setShowPrint(true)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
+          </svg>
+          Print codebook
+        </button>
+      </div>
       <p className="text-gray-500 text-sm mb-6">
         Define your qualitative codes. Add a description, example, and non-example to document each one.
       </p>
+      {showPrint && <CodebookPrintView onClose={() => setShowPrint(false)} />}
 
       {/* Create */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
@@ -98,7 +112,7 @@ export function TagManagerView() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-            placeholder="Tag name…"
+            placeholder="Code name…"
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -113,7 +127,7 @@ export function TagManagerView() {
       {/* List */}
       {tags.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No tags yet. Create your first tag above.
+          No codes yet. Create your first code above.
         </div>
       ) : (
         <div className="space-y-2">
@@ -146,7 +160,7 @@ export function TagManagerView() {
                     <button
                       onClick={() => goToAnalysis(tag.id)}
                       className="flex items-center gap-3 flex-1 min-w-0 text-left group"
-                      title={`View ${count} snippet${count !== 1 ? 's' : ''} tagged "${tag.name}"`}
+                      title={`View ${count} snippet${count !== 1 ? 's' : ''} coded "${tag.name}"`}
                     >
                       <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
                       <span className="text-gray-800 font-medium text-sm group-hover:text-blue-600 transition-colors">

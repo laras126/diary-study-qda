@@ -113,6 +113,24 @@ export function ImportView() {
         <code className="bg-gray-100 px-1 rounded">full_export_*.json</code> backup to restore all entries, tags, and snippets.
       </p>
 
+      {/* ── Format note ── */}
+      <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-6 text-sm text-blue-900 space-y-2">
+        <p className="font-semibold">Expected CSV format</p>
+        <p className="text-blue-800 leading-relaxed">
+          Your CSV should have one row per diary entry with separate columns for AM and PM responses.
+          This matches the default export from <strong>Microsoft Forms</strong> and <strong>Google Forms</strong> when
+          AM and PM prompts are separate questions in the same form.
+        </p>
+        <ul className="list-disc list-inside text-blue-700 space-y-1 pl-1">
+          <li><strong>AM column</strong> — morning response ("How do you plan to use LLMs today?")</li>
+          <li><strong>PM column</strong> — evening response ("How did you use LLMs today?")</li>
+          <li><strong>Date column</strong> — submission timestamp (used to assign each entry a date)</li>
+        </ul>
+        <p className="text-blue-700">
+          The tool will try to auto-detect which columns are which. You can confirm or adjust the mapping after uploading.
+        </p>
+      </div>
+
       {/* ── Drop zone ── */}
       <div
         onDrop={handleDrop}
