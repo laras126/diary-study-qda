@@ -21,8 +21,8 @@ No installation needed. Open the link in your browser and follow the on-screen i
 1. Export your MS Forms (or Google Forms) diary study responses as a CSV
 2. Go to **Import** and upload the file — the tool auto-detects the `AM:` and `PM:` columns
 3. Use **Clean** to fix any entries submitted on the wrong day
-4. Go to **Coding**, select an entry, highlight a phrase, and assign a tag to start building your codebook
-5. Use **Analysis** to browse snippets by tag and find patterns across entries
+4. Go to **Coding**, select an entry, highlight a phrase, and assign a code to start building your codebook
+5. Use **Analysis** to browse snippets by code and find patterns across entries
 
 ### CSV format
 
@@ -40,29 +40,24 @@ The app expects a CSV with these column headers (standard MS Forms export):
 
 Each row can have an AM response, a PM response, or both. Empty cells are skipped.
 
+You can also re-import a previously exported JSON backup to restore your work.
+
 ### Views
 
 | View | What it does |
 |------|-------------|
-| **Home** | Project dashboard — stats, tag breakdown, resume card, uncoded entries list |
-| **Import** | Upload a CSV; preview before committing; append or replace existing data |
+| **Home** | Project dashboard — stats, code breakdown, resume card, uncoded entries list |
+| **Import** | Upload a CSV or a JSON backup; preview before committing; append or replace existing data |
 | **Clean** | Fix entry dates — days with a missing AM or PM are flagged; drag entries to the correct day |
-| **Coding** | Highlight text and assign tags to create snippets. Supports overlapping highlights, inline annotations, Backspace to delete, ‹ › to navigate, and a search bar |
-| **Tags** | Create, rename (propagates to all snippets), and delete qualitative codes |
-| **Analysis** | Filter snippets by one or more tags (Any / All); click "View in context →" to jump to the source entry |
+| **Coding** | Highlight text and assign codes to create snippets. Supports child codes, overlapping highlights, notes on snippets, Backspace to delete, ‹ › to navigate, and a search bar |
+| **Codebook** | Create, rename (propagates to all snippets), and delete codes. Add a description, example, and non-example to document your coding scheme. Rename a code to an existing one to merge them. Print or save the codebook as a PDF |
+| **Analysis** | Filter snippets by one or more codes (Any / All); expand the full entry to read a snippet in context; jump directly to the Coding view with the snippet highlighted; edit codes or add notes without leaving the view; side-by-side AM/PM comparison panel |
 
 ### Exporting your data
 
-The **Export** button (top right) is always available:
+The **Export backup** button (top right) downloads a single JSON file containing all entries, codes, and snippets. You can re-import this file at any time to restore your work.
 
-| File | Contents |
-|------|----------|
-| `entries_DATE.csv` | All entries with dates and metadata |
-| `snippets_DATE.csv` | All snippets with tag names, text, and annotations |
-| `tags_DATE.csv` | Tag definitions with snippet counts |
-| `full_export_DATE.json` | Everything in one JSON file |
-
-Export regularly — clearing your browser data will erase everything.
+Export regularly — clearing your browser data will erase everything. The app will also remind you after 30 minutes of inactivity or after a significant number of unsaved changes.
 
 ---
 

@@ -30,11 +30,11 @@ export function AboutView() {
         </p>
         <div className="space-y-2 mb-3">
           <div className="flex gap-3 text-sm">
-            <span className="shrink-0 font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs mt-0.5">AM</span>
+            <span className="shrink-0 self-start font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded text-xs mt-0.5">AM</span>
             <p className="text-gray-600 italic">"Think about your tasks coming up today. How do you think you will use LLMs?"</p>
           </div>
           <div className="flex gap-3 text-sm">
-            <span className="shrink-0 font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded text-xs mt-0.5">PM</span>
+            <span className="shrink-0 self-start font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded text-xs mt-0.5">PM</span>
             <p className="text-gray-600 italic">"How did you use LLMs today? Were there any moments that stood out — successful usage, or frustrating usage?"</p>
           </div>
         </div>
