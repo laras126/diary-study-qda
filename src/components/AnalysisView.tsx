@@ -84,12 +84,25 @@ export function AnalysisView() {
 
   const filtered = useMemo(() => {
     if (!selectedTagIds.length) return snippets;
-    return snippets.filter((s) =>
-      mode === 'any'
-        ? selectedTagIds.some((id) => s.tagIds.includes(id))
-        : selectedTagIds.every((id) => s.tagIds.includes(id))
+    if (mode === 'any') {
+      return snippets.filter((s) => selectedTagIds.some((id) => s.tagIds.includes(id)));
+    }
+    // "All codes in snippet": find entries where every selected code appears
+    // in at least one snippet, then show those snippets that carry any selected code.
+    const qualifyingEntryIds = new Set(
+      entries
+        .filter((entry) => {
+          const entrySnippets = snippets.filter((s) => s.entryId === entry.id);
+          return selectedTagIds.every((tagId) =>
+            entrySnippets.some((s) => s.tagIds.includes(tagId))
+          );
+        })
+        .map((e) => e.id)
     );
-  }, [snippets, selectedTagIds, mode]);
+    return snippets.filter(
+      (s) => qualifyingEntryIds.has(s.entryId) && selectedTagIds.some((id) => s.tagIds.includes(id))
+    );
+  }, [snippets, selectedTagIds, mode, entries]);
 
   const compareGroups = useMemo(() => {
     if (!compareMode) return [];
@@ -330,7 +343,7 @@ export function AnalysisView() {
                   onClick={() => setMode(m)}
                   className={`px-2 py-1 rounded ${mode === m ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-500 hover:bg-gray-100'}`}
                 >
-                  {m === 'any' ? 'Any code' : 'All codes'}
+                  {m === 'any' ? 'Any code' : 'All codes in snippet'}
                 </button>
               ))}
             </div>
@@ -381,7 +394,7 @@ export function AnalysisView() {
         <div className="text-xs text-gray-400">
           {filtered.length} snippet{filtered.length !== 1 ? 's' : ''}
           {selectedTagIds.length > 0
-            ? ` matching ${mode === 'any' ? 'any' : 'all'} of the selected code${selectedTagIds.length !== 1 ? 's' : ''}`
+            ? ` with ${mode === 'any' ? 'any' : 'all'} selected code${selectedTagIds.length !== 1 ? 's' : ''} in snippet`
             : ' total'}
         </div>
         {filtered.length > 0 && (
