@@ -8,9 +8,6 @@ export function AnalysisView() {
 
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [mode, setMode] = useState<'any' | 'all'>('any');
-  const [addingChildFor, setAddingChildFor] = useState<string | null>(null);
-  const [childInput, setChildInput] = useState('');
-  const childInputRef = useRef<HTMLInputElement>(null);
   const [addingCodeFor, setAddingCodeFor] = useState<string | null>(null);
   const [codeInput, setCodeInput] = useState('');
   const codeInputRef = useRef<HTMLInputElement>(null);
@@ -53,33 +50,6 @@ export function AnalysisView() {
 
   const toggle = (id: string) =>
     setSelectedTagIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-
-  const getParentPrefix = (snippetTagIds: string[]): string => {
-    if (selectedTagIds.length === 1) {
-      const tag = tags.find((t) => t.id === selectedTagIds[0]);
-      if (tag) return tag.name + '/';
-    }
-    const first = tags.find((t) => snippetTagIds.includes(t.id));
-    return first ? first.name + '/' : '';
-  };
-
-  const submitChildTag = (snippetId: string, snippetTagIds: string[], prefix: string) => {
-    const child = childInput.trim();
-    if (!child) return;
-    const fullName = prefix + child;
-    let tag = tags.find((t) => t.name === fullName);
-    if (!tag) tag = addTag(fullName);
-    if (!snippetTagIds.includes(tag.id)) {
-      updateSnippetTags(snippetId, [...snippetTagIds, tag.id]);
-    }
-    setAddingChildFor(null);
-    setChildInput('');
-  };
-
-  const cancelChildTag = () => {
-    setAddingChildFor(null);
-    setChildInput('');
-  };
 
   const submitCode = (snippetId: string, currentTagIds: string[]) => {
     const name = codeInput.trim();
@@ -324,47 +294,21 @@ export function AnalysisView() {
                                 <p className="text-xs text-gray-400 px-3 py-2">Type to search or create a code</p>
                               )}
                             </div>
+                            {!codeInput.includes('/') && (
+                              <p className="text-xs text-gray-400 px-3 py-2 border-t border-gray-100">
+                                Tip: use <span className="font-mono text-gray-500">/</span> to add a subcode, e.g. <span className="font-mono text-gray-500">feeling/frustration</span>
+                              </p>
+                            )}
                           </div>
                           <div className="fixed inset-0 z-40" onClick={cancelCode} />
                         </span>
                       );
                     })() : (
                       <button
-                        onClick={() => { setAddingCodeFor(s.id); setCodeInput(''); setAddingChildFor(null); }}
+                        onClick={() => { setAddingCodeFor(s.id); setCodeInput(''); }}
                         className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
                       >
                         + code
-                      </button>
-                    )}
-                    {addingChildFor === s.id ? (() => {
-                      const prefix = getParentPrefix(s.tagIds);
-                      return (
-                        <form
-                          onSubmit={(e) => { e.preventDefault(); submitChildTag(s.id, s.tagIds, prefix); }}
-                          className="flex items-center gap-1"
-                        >
-                          {prefix && (
-                            <span className="text-xs text-gray-400 font-mono">{prefix}</span>
-                          )}
-                          <input
-                            ref={childInputRef}
-                            autoFocus
-                            value={childInput}
-                            onChange={(e) => setChildInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Escape' && cancelChildTag()}
-                            placeholder="child name"
-                            className="text-xs border border-gray-300 rounded px-1.5 py-0.5 w-28 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                          />
-                          <button type="submit" className="text-xs text-blue-600 hover:text-blue-800 font-medium">Add</button>
-                          <button type="button" onClick={cancelChildTag} className="text-xs text-gray-400 hover:text-gray-600">✕</button>
-                        </form>
-                      );
-                    })() : (
-                      <button
-                        onClick={() => { setAddingChildFor(s.id); setChildInput(''); setAddingCodeFor(null); }}
-                        className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
-                      >
-                        + child code
                       </button>
                     )}
                   </div>
