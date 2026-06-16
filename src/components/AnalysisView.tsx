@@ -11,6 +11,9 @@ export function AnalysisView() {
   const [addingChildFor, setAddingChildFor] = useState<string | null>(null);
   const [childInput, setChildInput] = useState('');
   const childInputRef = useRef<HTMLInputElement>(null);
+  const [addingCodeFor, setAddingCodeFor] = useState<string | null>(null);
+  const [codeInput, setCodeInput] = useState('');
+  const codeInputRef = useRef<HTMLInputElement>(null);
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const [editingParentTag, setEditingParentTag] = useState<{ snippetId: string; tagId: string } | null>(null);
 
@@ -76,6 +79,31 @@ export function AnalysisView() {
   const cancelChildTag = () => {
     setAddingChildFor(null);
     setChildInput('');
+  };
+
+  const submitCode = (snippetId: string, currentTagIds: string[]) => {
+    const name = codeInput.trim();
+    if (!name) return;
+    let tag = tags.find((t) => t.name === name);
+    if (!tag) tag = addTag(name);
+    if (!currentTagIds.includes(tag.id)) {
+      updateSnippetTags(snippetId, [...currentTagIds, tag.id]);
+    }
+    setAddingCodeFor(null);
+    setCodeInput('');
+  };
+
+  const addExistingCode = (snippetId: string, tagId: string, currentTagIds: string[]) => {
+    if (!currentTagIds.includes(tagId)) {
+      updateSnippetTags(snippetId, [...currentTagIds, tagId]);
+    }
+    setAddingCodeFor(null);
+    setCodeInput('');
+  };
+
+  const cancelCode = () => {
+    setAddingCodeFor(null);
+    setCodeInput('');
   };
 
   const filtered = useMemo(() => {
@@ -251,6 +279,63 @@ export function AnalysisView() {
                         </span>
                       );
                     })}
+                    {addingCodeFor === s.id ? (() => {
+                      const available = parentTags.filter((t) => !s.tagIds.includes(t.id));
+                      const q = codeInput.trim().toLowerCase();
+                      const filtered = available.filter((t) => t.name.toLowerCase().includes(q));
+                      const exactMatch = tags.find((t) => !isChildTag(t) && t.name.toLowerCase() === q);
+                      return (
+                        <span className="relative">
+                          <div className="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-52 z-50">
+                            <div className="p-1.5 border-b border-gray-100">
+                              <input
+                                ref={codeInputRef}
+                                autoFocus
+                                value={codeInput}
+                                onChange={(e) => setCodeInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') submitCode(s.id, s.tagIds);
+                                  if (e.key === 'Escape') cancelCode();
+                                }}
+                                placeholder="Search or create…"
+                                className="w-full text-xs px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              />
+                            </div>
+                            <div className="max-h-40 overflow-y-auto py-1">
+                              {filtered.map((t) => (
+                                <button
+                                  key={t.id}
+                                  onClick={() => addExistingCode(s.id, t.id, s.tagIds)}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-gray-50"
+                                >
+                                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: t.color }} />
+                                  <span className="text-gray-700">{t.name}</span>
+                                </button>
+                              ))}
+                              {codeInput.trim() && !exactMatch && (
+                                <button
+                                  onClick={() => submitCode(s.id, s.tagIds)}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-blue-50 text-blue-600"
+                                >
+                                  <span className="font-medium">Create "{codeInput.trim()}"</span>
+                                </button>
+                              )}
+                              {filtered.length === 0 && !codeInput.trim() && (
+                                <p className="text-xs text-gray-400 px-3 py-2">Type to search or create a code</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="fixed inset-0 z-40" onClick={cancelCode} />
+                        </span>
+                      );
+                    })() : (
+                      <button
+                        onClick={() => { setAddingCodeFor(s.id); setCodeInput(''); setAddingChildFor(null); }}
+                        className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
+                      >
+                        + code
+                      </button>
+                    )}
                     {addingChildFor === s.id ? (() => {
                       const prefix = getParentPrefix(s.tagIds);
                       return (
@@ -276,7 +361,7 @@ export function AnalysisView() {
                       );
                     })() : (
                       <button
-                        onClick={() => { setAddingChildFor(s.id); setChildInput(''); }}
+                        onClick={() => { setAddingChildFor(s.id); setChildInput(''); setAddingCodeFor(null); }}
                         className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
                       >
                         + child code
