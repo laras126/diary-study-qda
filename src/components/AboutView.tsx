@@ -51,8 +51,8 @@ export function AboutView() {
             'Export your MS Forms (or Google Forms) responses as a CSV.',
             'Click Import and upload the CSV. The tool will detect the AM and PM columns automatically.',
             'Use the Clean view to fix any entries submitted on the wrong day.',
-            'Open the Coding view, select an entry, highlight a phrase, and assign it a tag to start building your codebook.',
-            'Use the Analysis view to browse all snippets by tag and look for patterns across entries.',
+            'Open the Coding view, select an entry, highlight a phrase, and assign it a code to start building your codebook.',
+            'Use the Analysis view to browse all snippets by code and look for patterns across entries.',
           ].map((text, i) => (
             <li key={i} className="flex gap-3 text-sm text-gray-600">
               <span className="shrink-0 w-6 h-6 rounded-full bg-gray-100 text-gray-500 font-semibold flex items-center justify-center text-xs">
@@ -82,7 +82,7 @@ export function AboutView() {
             {
               icon: '🏷️',
               title: 'Coding',
-              desc: 'Select text in any entry to create a coded snippet. Assign one or more tags, add child tags for finer-grained codes, and leave a note on any snippet.',
+              desc: 'Select text in any entry to create a coded snippet. Assign one or more codes, add child codes for finer-grained distinctions, and leave a note on any snippet.',
             },
             {
               icon: '📖',
@@ -92,7 +92,7 @@ export function AboutView() {
             {
               icon: '🔍',
               title: 'Analysis',
-              desc: 'Browse all snippets filtered by one or more tags. Expand the full entry text to see a snippet in context, or jump directly to the Coding view with the snippet highlighted. Edit tags or add notes without leaving the view.',
+              desc: 'Browse all snippets filtered by one or more codes. Expand the full entry text to see a snippet in context, or jump directly to the Coding view with the snippet highlighted. Edit codes or add notes without leaving the view.',
             },
             {
               icon: '💾',

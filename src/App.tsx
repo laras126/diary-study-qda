@@ -126,7 +126,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <div className="hidden xl:flex gap-4 text-xs text-white/60">
             <span>{entries.length} entries</span>
-            <span>{tags.length} tags</span>
+            <span>{tags.length} codes</span>
             <span>{snippets.length} snippets</span>
             <span className={lastExported && new Date(lastExported).getTime() >= SESSION_START ? 'text-white/60' : 'text-amber-400'}>
               last backup: {formatLastExported(lastExported)}
@@ -193,7 +193,7 @@ export default function App() {
             <div className="border-t border-white/10 px-5 py-3 flex items-center justify-between">
               <div className="flex gap-3 text-xs text-white/50">
                 <span>{entries.length} entries</span>
-                <span>{tags.length} tags</span>
+                <span>{tags.length} codes</span>
                 <span>{snippets.length} snippets</span>
               </div>
               <ExportButton onExport={handleExport} />

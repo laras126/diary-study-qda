@@ -419,7 +419,7 @@ export function CodingView() {
                             <button
                               onClick={(e) => { e.stopPropagation(); setAddingChildFor(s.id); setChildInput(''); }}
                               className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-0.5 rounded border border-dashed border-gray-200 hover:border-gray-400 leading-4"
-                            >+ child tag</button>
+                            >+ child code</button>
                           )}
                         </div>
                         {/* Annotation */}

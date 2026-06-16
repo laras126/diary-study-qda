@@ -64,8 +64,8 @@ export function TagManagerView() {
   const handleDelete = (t: Tag) => {
     const count = snippets.filter((s) => s.tagIds.includes(t.id)).length;
     const msg = count > 0
-      ? `Delete "${t.name}"? It's used on ${count} snippet${count !== 1 ? 's' : ''}. Those snippets will also be removed if they have no other tags.`
-      : `Delete tag "${t.name}"?`;
+      ? `Delete "${t.name}"? It's used on ${count} snippet${count !== 1 ? 's' : ''}. Those snippets will also be removed if they have no other codes.`
+      : `Delete code "${t.name}"?`;
     if (window.confirm(msg)) deleteTag(t.id);
   };
 
@@ -112,7 +112,7 @@ export function TagManagerView() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-            placeholder="Tag name…"
+            placeholder="Code name…"
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -127,7 +127,7 @@ export function TagManagerView() {
       {/* List */}
       {tags.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm">
-          No tags yet. Create your first tag above.
+          No codes yet. Create your first code above.
         </div>
       ) : (
         <div className="space-y-2">
@@ -160,7 +160,7 @@ export function TagManagerView() {
                     <button
                       onClick={() => goToAnalysis(tag.id)}
                       className="flex items-center gap-3 flex-1 min-w-0 text-left group"
-                      title={`View ${count} snippet${count !== 1 ? 's' : ''} tagged "${tag.name}"`}
+                      title={`View ${count} snippet${count !== 1 ? 's' : ''} coded "${tag.name}"`}
                     >
                       <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
                       <span className="text-gray-800 font-medium text-sm group-hover:text-blue-600 transition-colors">

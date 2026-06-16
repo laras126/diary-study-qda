@@ -100,8 +100,8 @@ export function HomeView() {
                 { n: '1', text: 'Export your MS Forms (or Google Forms) responses as a CSV.' },
                 { n: '2', text: 'Click Import below and upload the CSV. The tool will detect the AM and PM columns automatically.' },
                 { n: '3', text: 'Use the Clean view to fix any entries that were submitted on the wrong day.' },
-                { n: '4', text: 'Open the Coding view, select an entry, highlight a phrase, and assign it a tag to start building your codebook.' },
-                { n: '5', text: 'Use the Analysis view to browse all snippets by tag and look for patterns across entries.' },
+                { n: '4', text: 'Open the Coding view, select an entry, highlight a phrase, and assign it a code to start building your codebook.' },
+                { n: '5', text: 'Use the Analysis view to browse all snippets by code and look for patterns across entries.' },
               ].map(({ n, text }) => (
                 <li key={n} className="flex gap-3 text-sm text-gray-600">
                   <span className="shrink-0 w-6 h-6 rounded-full bg-gray-100 text-gray-500 font-semibold flex items-center justify-center text-xs">{n}</span>
@@ -124,7 +124,7 @@ export function HomeView() {
             {[
               { label: 'Entries', value: entries.length, sub: `${uncoded.length} uncoded`, color: 'text-gray-800' },
               { label: 'Coded', value: codedCount, sub: `${Math.round((codedCount / entries.length) * 100)}% of entries`, color: 'text-green-700' },
-              { label: 'Tags', value: tags.length, sub: 'qualitative codes', color: 'text-blue-700' },
+              { label: 'Codes', value: tags.length, sub: 'qualitative codes', color: 'text-blue-700' },
               { label: 'Snippets', value: snippets.length, sub: 'text selections', color: 'text-purple-700' },
             ].map(({ label, value, sub, color }) => (
               <div key={label} className="bg-white rounded-xl border border-gray-200 p-4">
@@ -180,7 +180,7 @@ export function HomeView() {
             {/* Tag breakdown */}
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-gray-700">Tag breakdown</h2>
+                <h2 className="text-sm font-semibold text-gray-700">Code breakdown</h2>
                 <button onClick={() => setCurrentView('tags')} className="text-xs text-blue-500 hover:text-blue-700">
                   Manage →
                 </button>
@@ -188,9 +188,9 @@ export function HomeView() {
 
               {tags.length === 0 ? (
                 <div className="text-center py-6">
-                  <p className="text-sm text-gray-400 mb-3">No tags yet</p>
+                  <p className="text-sm text-gray-400 mb-3">No codes yet</p>
                   <button onClick={() => setCurrentView('tags')} className="text-xs text-blue-500 hover:underline">
-                    Create your first tag →
+                    Create your first code →
                   </button>
                 </div>
               ) : (
