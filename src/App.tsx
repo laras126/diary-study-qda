@@ -53,12 +53,36 @@ export default function App() {
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showIdleBanner, setShowIdleBanner] = useState(false);
+  const [changeCount, setChangeCount] = useState(0);
+
+  const tracker = useRef({
+    prevTags: useStore.getState().tags,
+    prevEntries: useStore.getState().entries,
+    prevSnippets: useStore.getState().snippets,
+    noteBaseline: new Map<string, string>(
+      useStore.getState().snippets.map((s) => [s.id, s.note])
+    ),
+    dirtyNotes: new Set<string>(),
+  });
+
+  const resetChangeTracker = () => {
+    const state = useStore.getState();
+    tracker.current = {
+      prevTags: state.tags,
+      prevEntries: state.entries,
+      prevSnippets: state.snippets,
+      noteBaseline: new Map(state.snippets.map((s) => [s.id, s.note])),
+      dirtyNotes: new Set(),
+    };
+    setChangeCount(0);
+  };
 
   const handleExport = () => {
     const now = new Date().toISOString();
     localStorage.setItem(LS_LAST_EXPORT, now);
     setLastExported(now);
     setShowIdleBanner(false);
+    resetChangeTracker();
   };
 
   const dismissBanner = () => {
@@ -85,6 +109,45 @@ export default function App() {
       events.forEach((e) => window.removeEventListener(e, resetTimer));
     };
   }, [entries.length]);
+
+  // Count meaningful data changes since last export; prompt backup when threshold is exceeded.
+  useEffect(() => {
+    return useStore.subscribe((state) => {
+      const t = tracker.current;
+      let delta = 0;
+
+      if (state.tags !== t.prevTags) {
+        delta++;
+        t.prevTags = state.tags;
+      }
+      if (state.entries !== t.prevEntries) {
+        delta++;
+        t.prevEntries = state.entries;
+      }
+      if (state.snippets !== t.prevSnippets) {
+        const structural =
+          state.snippets.length !== t.prevSnippets.length ||
+          state.snippets.some((s) => {
+            const p = t.prevSnippets.find((ps) => ps.id === s.id);
+            return !p || p.tagIds.join() !== s.tagIds.join();
+          });
+        if (structural) delta++;
+
+        // Notes: count 1 per snippet that diverged from baseline, not per keystroke.
+        state.snippets.forEach((s) => {
+          const base = t.noteBaseline.get(s.id) ?? '';
+          if (s.note !== base && !t.dirtyNotes.has(s.id)) {
+            t.dirtyNotes.add(s.id);
+            delta++;
+          }
+        });
+
+        t.prevSnippets = state.snippets;
+      }
+
+      if (delta > 0) setChangeCount((c) => c + delta);
+    });
+  }, []);
 
   // On first load: if there's a valid hash, honour it; otherwise stamp the current view into the hash.
   useEffect(() => {
@@ -226,6 +289,21 @@ export default function App() {
             </div>
           </div>
         </>
+      )}
+
+      {/* Change-count backup reminder */}
+      {changeCount >= CHANGE_THRESHOLD && !showIdleBanner && !showBanner && (
+        <div className="shrink-0 bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center justify-between gap-4 text-sm">
+          <p className="text-amber-800">
+            You've made {changeCount} changes since your last backup — consider downloading a backup so your work is safe.
+          </p>
+          <div className="flex items-center gap-3 shrink-0">
+            <ExportButton onExport={handleExport} />
+            <button onClick={resetChangeTracker} className="text-amber-700 hover:text-amber-900 font-medium">
+              Dismiss
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Idle backup reminder */}
